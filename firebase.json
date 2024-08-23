@@ -1,0 +1,52 @@
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "bento-web-app-d161f",
+          "appId": "1:138063546463:android:6090720ce0f0ced6e9b3ea",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "ios": {
+        "default": {
+          "projectId": "bento-web-app-d161f",
+          "appId": "1:138063546463:ios:2aa15f8215333e82e9b3ea",
+          "uploadDebugSymbols": false,
+          "fileOutput": "ios/Runner/GoogleService-Info.plist"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "bento-web-app-d161f",
+          "configurations": {
+            "android": "1:138063546463:android:6090720ce0f0ced6e9b3ea",
+            "ios": "1:138063546463:ios:2aa15f8215333e82e9b3ea",
+            "web": "1:138063546463:web:a8585d73ae13c328e9b3ea"
+          }
+        }
+      }
+    }
+  },
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "hosting": {
+    "public": "build/web",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  },
+  "storage": {
+    "rules": "storage.rules"
+  }
+}

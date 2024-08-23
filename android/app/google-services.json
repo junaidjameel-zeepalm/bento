@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "138063546463",
+    "project_id": "bento-web-app-d161f",
+    "storage_bucket": "bento-web-app-d161f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:138063546463:android:6090720ce0f0ced6e9b3ea",
+        "android_client_info": {
+          "package_name": "com.zeepalm.bento"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA4d7Azn678LJ29OCmsGF2Nvt5MaAAZHXk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

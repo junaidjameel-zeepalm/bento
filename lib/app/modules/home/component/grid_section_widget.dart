@@ -2,7 +2,6 @@ import 'package:bento/app/controller/home_controller.dart';
 import 'package:bento/app/modules/home/component/hover_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_builder.dart';
-import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:get/get.dart';
 
 class GridSectionWidget extends StatefulWidget {
@@ -16,6 +15,7 @@ class GridSectionWidget extends StatefulWidget {
 class _GridSectionWidgetState extends State<GridSectionWidget> {
   final HomeController _hc = Get.put(HomeController());
   final _scrollController = ScrollController();
+  int? _draggedIndex; // Track the index of the dragged item
 
   @override
   void dispose() {
@@ -43,6 +43,9 @@ class _GridSectionWidgetState extends State<GridSectionWidget> {
                   (List<dynamic> Function(List<dynamic>) reorderFunction) {
                 var newItems = reorderFunction(_hc.items).cast<String>();
                 _hc.reorderItems(newItems);
+                setState(() {
+                  _draggedIndex = null; // Clear the dragged index after reorder
+                });
               },
               builder: (children) {
                 return Wrap(
@@ -52,13 +55,37 @@ class _GridSectionWidgetState extends State<GridSectionWidget> {
               children: List.generate(
                 _hc.items.length,
                 (index) {
+                  // Use a unique key for every child based on item identifier and index
                   return ReorderableDragStartListener(
                     index: index,
-                    key: ValueKey(_hc.items[index]),
+                    key: ValueKey('${_hc.items[index]}_$index'),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                      child: OnHoverButton(
-                          itemId: _hc.items[index]), // Pass the item identifier
+                      child: Stack(
+                        children: [
+                          OnHoverButton(
+                            key: ValueKey(
+                                'hover_${_hc.items[index]}'), // Unique key for OnHoverButton
+                            itemId:
+                                _hc.items[index], // Pass the item identifier
+                          ),
+                          if (_draggedIndex ==
+                              index) // Show placeholder if dragging
+                            Positioned.fill(
+                              child: Container(
+                                height: 20,
+                                margin: const EdgeInsets.symmetric(
+                                    horizontal: 12.0),
+                                decoration: BoxDecoration(
+                                  border:
+                                      Border.all(color: Colors.blue, width: 2),
+                                  borderRadius: BorderRadius.circular(30),
+                                  color: Colors.red,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
                     ),
                   );
                 },
@@ -70,22 +97,3 @@ class _GridSectionWidgetState extends State<GridSectionWidget> {
     });
   }
 }
-
-// class CustomWrap extends Wrap {
-//   const CustomWrap({
-//     required super.children,
-//     super.direction,
-//     super.alignment,
-//     super.spacing,
-//     super.runAlignment,
-//     super.runSpacing,
-//     super.crossAxisAlignment,
-//     super.textDirection,
-//     super.verticalDirection,
-//     Clip clip = Clip.none,
-//     String? key,
-//   }) : super(
-//           clipBehavior: clip,
-//           key: key,
-//         );
-// }

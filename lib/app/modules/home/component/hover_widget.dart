@@ -1,5 +1,4 @@
 import 'package:bento/app/controller/home_controller.dart';
-import 'package:bento/app/data/constant/data.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -18,12 +17,15 @@ class _OnHoverButtonState extends State<OnHoverButton> {
   final HomeController _hc = Get.find<HomeController>();
   bool isHovered = false;
 
+  // Base size for consistency
+  final double baseSize = 200.0;
+
+  // Shape sizes with equal width or width twice the height
   final shapeSizes = {
     ShapeType.square: const Size(200, 260),
-    ShapeType.mediumRectangle: const Size(200, 400),
-    ShapeType.smallRectangle: const Size(400, 200),
-    ShapeType.horizontalRectangle: const Size(1200, 200),
-    ShapeType.largeSquare: const Size(400, 400),
+    ShapeType.smallRectangle: const Size(430, 160),
+    ShapeType.mediumRectangle: const Size(200, 490),
+    ShapeType.largeSquare: const Size(430, 490),
   };
 
   @override

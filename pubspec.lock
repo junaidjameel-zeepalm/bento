@@ -33,6 +33,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.11.0"
+  bheya_network:
+    dependency: "direct main"
+    description:
+      name: bheya_network
+      sha256: "82936bbcffc5ab4cec3f9fd375e8013a6240ab687069dc3c134c099810aef069"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.1"
   boolean_selector:
     dependency: transitive
     description:

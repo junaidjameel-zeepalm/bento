@@ -31,8 +31,9 @@ class _GridSectionWidgetState extends State<GridSectionWidget> {
         child: Padding(
           padding: EdgeInsets.all(widget.isMobile ? 0 : 60),
           child: SizedBox(
-            width: widget.isMobile ? 410 : null,
+            width: widget.isMobile ? 550 : null,
             child: ReorderableBuilder(
+              automaticScrollExtent: 10,
               dragChildBoxDecoration:
                   const BoxDecoration(color: Colors.transparent),
               enableLongPress: false,
@@ -42,25 +43,18 @@ class _GridSectionWidgetState extends State<GridSectionWidget> {
                   (List<dynamic> Function(List<dynamic>) reorderFunction) {
                 var newItems = reorderFunction(_hc.items).cast<String>();
                 _hc.reorderItems(newItems);
-
-                // No need to update itemShapes explicitly, as it uses item IDs as keys, which remain consistent
               },
               builder: (children) {
-                return MasonryGridView(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate: SliverSimpleGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: widget.isMobile ? 2 : 4,
-                  ),
+                return Wrap(
                   children: children,
                 );
               },
               children: List.generate(
                 _hc.items.length,
                 (index) {
-                  return SizedBox(
-                    key: ValueKey(
-                        _hc.items[index]), // Use the item identifier as the key
+                  return ReorderableDragStartListener(
+                    index: index,
+                    key: ValueKey(_hc.items[index]),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 12.0),
                       child: OnHoverButton(
@@ -76,3 +70,22 @@ class _GridSectionWidgetState extends State<GridSectionWidget> {
     });
   }
 }
+
+// class CustomWrap extends Wrap {
+//   const CustomWrap({
+//     required super.children,
+//     super.direction,
+//     super.alignment,
+//     super.spacing,
+//     super.runAlignment,
+//     super.runSpacing,
+//     super.crossAxisAlignment,
+//     super.textDirection,
+//     super.verticalDirection,
+//     Clip clip = Clip.none,
+//     String? key,
+//   }) : super(
+//           clipBehavior: clip,
+//           key: key,
+//         );
+// }

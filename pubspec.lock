@@ -121,6 +121,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.18.0"
+  cross_file:
+    dependency: transitive
+    description:
+      name: cross_file
+      sha256: "7caf6a750a0c04effbb52a676dce9a4a592e10ad35c34d6d2d0e4811160d5670"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.4+2"
   crypto:
     dependency: transitive
     description:
@@ -145,6 +153,30 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.8"
+  drag_and_drop_flutter:
+    dependency: "direct main"
+    description:
+      name: drag_and_drop_flutter
+      sha256: "7d035a0331400ad414269befd59c0170a8311620e49d67402da702b458f547a7"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.0"
+  drag_and_drop_flutter_platform_interface:
+    dependency: transitive
+    description:
+      name: drag_and_drop_flutter_platform_interface
+      sha256: "27c6759f7df0c866b7e6f9a04c42567ce65a07557e47b19f99b26b6c046df3c1"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.2.1"
+  drag_and_drop_flutter_web:
+    dependency: transitive
+    description:
+      name: drag_and_drop_flutter_web
+      sha256: c2796faa70c62ea041931503324cd3efe5e73ca762a6c0acbe7090e8a93cf6ab
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.2.1"
   fake_async:
     dependency: transitive
     description:
@@ -238,6 +270,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.4.1"
+  flutter_draggable_gridview:
+    dependency: "direct main"
+    description:
+      name: flutter_draggable_gridview
+      sha256: "558747591fc3fccb1ecf97f8f540a160b1712b4ab12d57f3ce961d1190487164"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.12"
   flutter_lints:
     dependency: "direct dev"
     description:

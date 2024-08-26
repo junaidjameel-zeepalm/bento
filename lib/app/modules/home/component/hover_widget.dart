@@ -1,14 +1,7 @@
 import 'package:bento/app/controller/home_controller.dart';
+import 'package:bento/app/data/constant/data.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
-enum ShapeType {
-  mediumRectangle,
-  square,
-  smallRectangle,
-  horizontalRectangle,
-  largeSquare
-}
 
 class OnHoverButton extends StatefulWidget {
   final String itemId; // Unique identifier for the item
@@ -26,9 +19,9 @@ class _OnHoverButtonState extends State<OnHoverButton> {
   bool isHovered = false;
 
   final shapeSizes = {
-    ShapeType.square: const Size(260, 260),
+    ShapeType.square: const Size(200, 260),
     ShapeType.mediumRectangle: const Size(200, 400),
-    ShapeType.smallRectangle: const Size(500, 200),
+    ShapeType.smallRectangle: const Size(400, 200),
     ShapeType.horizontalRectangle: const Size(1200, 200),
     ShapeType.largeSquare: const Size(400, 400),
   };
@@ -46,48 +39,91 @@ class _OnHoverButtonState extends State<OnHoverButton> {
             cursor: SystemMouseCursors.grab,
             onEnter: (_) => setState(() => isHovered = true),
             onExit: (_) => setState(() => isHovered = false),
-            child: AnimatedContainer(
-              width: containerSize.width,
-              height: containerSize.height,
-              duration: const Duration(milliseconds: 200),
-              transform: isHovered
-                  ? Matrix4.translationValues(0, -10, 0)
-                  : Matrix4.identity(),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(30),
-              ),
-              child: Stack(
-                alignment: Alignment.bottomCenter,
-                children: [
-                  Align(
-                    alignment: Alignment.topCenter,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                    ),
+            child: Stack(
+              children: [
+                AnimatedContainer(
+                  width: containerSize.width,
+                  height: containerSize.height,
+                  duration: const Duration(milliseconds: 200),
+                  transform: isHovered
+                      ? Matrix4.translationValues(0, -10, 0)
+                      : Matrix4.identity(),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(30),
                   ),
-                  Align(
-                    alignment: Alignment.topCenter,
-                    child: Container(
-                      margin: const EdgeInsets.only(bottom: 50),
-                      decoration: BoxDecoration(
-                        color: Colors.amber,
-                        borderRadius: BorderRadius.circular(30),
+                  child: Stack(
+                    alignment: Alignment.bottomCenter,
+                    children: [
+                      Align(
+                        alignment: Alignment.topCenter,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                        ),
                       ),
-                    ),
+                      Align(
+                        alignment: Alignment.topCenter,
+                        child: Container(
+                          margin: const EdgeInsets.only(bottom: 50),
+                          decoration: BoxDecoration(
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.withOpacity(0.1),
+                                spreadRadius: 5,
+                                blurRadius: 7,
+                                offset: const Offset(
+                                    0, 3), // Changes position of shadow
+                              )
+                            ],
+                            border: Border.all(color: Colors.grey[300]!),
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                        ),
+                      ),
+                      AnimatedOpacity(
+                        opacity: isHovered ? 1.0 : 0.0,
+                        duration: const Duration(milliseconds: 250),
+                        child: SizedBox(
+                          width: 200,
+                          child: CustomShapeButton(
+                            onShapeSelected: (ShapeType shape) {
+                              _hc.updateItemShape(widget.itemId, shape);
+                            },
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                  if (isHovered)
-                    SizedBox(
-                      width: 200,
-                      child: CustomShapeButton(
-                        onShapeSelected: (ShapeType shape) {
-                          _hc.updateItemShape(widget.itemId, shape);
+                ),
+                AnimatedOpacity(
+                  opacity: isHovered ? 1.0 : 0.0,
+                  duration: const Duration(milliseconds: 250),
+                  child: Container(
+                    transform: Matrix4.translationValues(-10, -15, 0),
+                    width: 35,
+                    height: 35,
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey[300]!),
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Center(
+                      child: IconButton(
+                        onPressed: () {
+                          // Handle delete action
                         },
+                        icon: const Icon(
+                          Icons.delete,
+                          color: Colors.black,
+                          size: 17,
+                        ),
                       ),
                     ),
-                ],
-              ),
+                  ),
+                ),
+              ],
             ),
           ),
         ],

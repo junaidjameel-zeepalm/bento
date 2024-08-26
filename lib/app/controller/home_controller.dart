@@ -1,8 +1,7 @@
-import 'package:bento/app/modules/home/component/hover_widget.dart';
 import 'package:get/get.dart';
 
 class HomeController extends GetxController {
-  var items = List.generate(20, (index) => 'Item $index').obs;
+  var items = List.generate(6, (index) => 'Item $index').obs;
   var itemShapes =
       <String, ShapeType>{}.obs; // Map to store shape for each item identifier
 
@@ -21,4 +20,12 @@ class HomeController extends GetxController {
     return itemShapes[itemId] ??
         ShapeType.square; // Default to square if not set
   }
+}
+
+enum ShapeType {
+  mediumRectangle,
+  square,
+  smallRectangle,
+  horizontalRectangle,
+  largeSquare
 }

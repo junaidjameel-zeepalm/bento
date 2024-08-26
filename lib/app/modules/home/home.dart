@@ -29,11 +29,11 @@ class BentoHomePageState extends State<BentoHomePage> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         SizedBox(
-          width: Get.width * 0.3,
+          width: Get.width * 0.25,
           child: _buildProfileSection(isMobile),
         ),
         SizedBox(
-            width: Get.width * 0.7,
+            width: Get.width * 0.75,
             child: GridSectionWidget(isMobile: isMobile)),
       ],
     );

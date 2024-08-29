@@ -2,6 +2,10 @@ import 'package:bento/app/controller/home_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../data/enums/shape_enum.dart';
+import '../../../model/gridItem_model.dart';
+import 'custom_shapes_tile.dart';
+
 class OnHoverButton extends StatefulWidget {
   final String itemId; // Unique identifier for the item
   const OnHoverButton({
@@ -17,13 +21,9 @@ class _OnHoverButtonState extends State<OnHoverButton> {
   final HomeController _hc = Get.find<HomeController>();
   bool isHovered = false;
 
-  // Base size for consistency
-  final double baseSize = 200.0;
-
-  // Shape sizes with equal width or width twice the height
   final shapeSizes = {
     ShapeType.square: const Size(200, 260),
-    ShapeType.smallRectangle: const Size(430, 160),
+    ShapeType.smallRectangle: const Size(430, 150),
     ShapeType.mediumRectangle: const Size(200, 490),
     ShapeType.largeSquare: const Size(430, 490),
   };
@@ -32,7 +32,32 @@ class _OnHoverButtonState extends State<OnHoverButton> {
   Widget build(BuildContext context) {
     return Obx(() {
       final selectedShape = _hc.getItemShape(widget.itemId);
+      final item = _hc.getItem(widget.itemId);
       final containerSize = shapeSizes[selectedShape]!;
+
+      Widget contentWidget;
+
+      switch (item.type) {
+        case ItemType.link:
+          contentWidget = Center(
+            child: Text(item.link ?? item.link.toString(),
+                style: const TextStyle(color: Colors.blue)),
+          );
+          break;
+        case ItemType.image:
+          contentWidget = item.imagePath != null
+              ? Center(child: Image.network(item.imagePath!, fit: BoxFit.fill))
+              : Container();
+          break;
+        case ItemType.text:
+          contentWidget = Center(
+            child: Text(item.text ?? 'Text',
+                style: const TextStyle(color: Colors.black)),
+          );
+          break;
+        default:
+          contentWidget = Container();
+      }
 
       return Column(
         mainAxisSize: MainAxisSize.min,
@@ -59,14 +84,6 @@ class _OnHoverButtonState extends State<OnHoverButton> {
                       Align(
                         alignment: Alignment.topCenter,
                         child: Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                        ),
-                      ),
-                      Align(
-                        alignment: Alignment.topCenter,
-                        child: Container(
                           margin: const EdgeInsets.only(bottom: 50),
                           decoration: BoxDecoration(
                             boxShadow: [
@@ -74,14 +91,14 @@ class _OnHoverButtonState extends State<OnHoverButton> {
                                 color: Colors.grey.withOpacity(0.1),
                                 spreadRadius: 5,
                                 blurRadius: 7,
-                                offset: const Offset(
-                                    0, 3), // Changes position of shadow
-                              )
+                                offset: const Offset(0, 3),
+                              ),
                             ],
                             border: Border.all(color: Colors.grey[300]!),
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(30),
                           ),
+                          child: contentWidget,
                         ),
                       ),
                       AnimatedOpacity(
@@ -113,8 +130,14 @@ class _OnHoverButtonState extends State<OnHoverButton> {
                     ),
                     child: Center(
                       child: IconButton(
+                        style: ButtonStyle(
+                            overlayColor:
+                                WidgetStateProperty.all(Colors.grey[300]),
+                            shape: WidgetStateProperty.all(
+                                RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(30)))),
                         onPressed: () {
-                          // Handle delete action
+                          _hc.deleteItem(widget.itemId);
                         },
                         icon: const Icon(
                           Icons.delete,
@@ -131,69 +154,5 @@ class _OnHoverButtonState extends State<OnHoverButton> {
         ],
       );
     });
-  }
-}
-
-class CustomShapeButton extends StatelessWidget {
-  final ValueChanged<ShapeType> onShapeSelected;
-
-  const CustomShapeButton({
-    super.key,
-    required this.onShapeSelected,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final List<Map<String, dynamic>> shapes = [
-      {
-        'width': 15.0,
-        'height': 15.0,
-        'borderRadius': 2.0,
-        'shape': ShapeType.square,
-      },
-      {
-        'width': 30.0,
-        'height': 15.0,
-        'borderRadius': 5.0,
-        'shape': ShapeType.smallRectangle,
-      },
-      {
-        'width': 15.0,
-        'height': 30.0,
-        'borderRadius': 5.0,
-        'shape': ShapeType.mediumRectangle,
-      },
-      {
-        'width': 30.0,
-        'height': 30.0,
-        'borderRadius': 4.0,
-        'shape': ShapeType.largeSquare,
-      },
-    ];
-
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 5),
-      height: 45,
-      decoration: BoxDecoration(
-        color: Colors.black,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: shapes.map((shape) {
-          return IconButton(
-            onPressed: () => onShapeSelected(shape['shape']),
-            icon: Container(
-              width: shape['width'],
-              height: shape['height'],
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(shape['borderRadius']),
-              ),
-            ),
-          );
-        }).toList(),
-      ),
-    );
   }
 }

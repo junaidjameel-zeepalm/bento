@@ -1,4 +1,5 @@
 import 'package:bento/app/modules/home/component/grid_section_widget.dart';
+import 'package:bento/app/modules/home/component/widget_creation_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -13,6 +14,8 @@ class BentoHomePageState extends State<BentoHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: const WidgetCreationTile(),
       body: LayoutBuilder(
         builder: (context, constraints) {
           bool isMobile = constraints.maxWidth < 1300;

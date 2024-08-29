@@ -1,4 +1,5 @@
 import 'package:bento/app/data/constant/data.dart';
+import 'package:bento/app/check.dart';
 import 'package:bento/app/modules/home/home.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
@@ -27,10 +28,10 @@ class MyApp extends StatelessWidget {
         navigatorKey: navigatorKey,
         scaffoldMessengerKey: scaffoldMessengerKey,
         useInheritedMediaQuery: true,
-        title: 'Flutter Component Library',
+        title: 'Bento',
         debugShowCheckedModeBanner: false,
         scrollBehavior: const ScrollBehavior().copyWith(scrollbars: false),
-        theme: ThemeData(scaffoldBackgroundColor: AppColors.kWhite),
+        theme: AppTheme.lightTheme,
         //theme: AppTheme.darkTheme,
         home: const BentoHomePage());
   }

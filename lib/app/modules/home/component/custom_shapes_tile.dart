@@ -14,25 +14,25 @@ class CustomShapeButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final List<Map<String, dynamic>> shapes = [
       {
-        'width': 15.0,
+        'width': 14.0,
         'height': 15.0,
         'borderRadius': 2.0,
         'shape': ShapeType.square,
       },
       {
-        'width': 30.0,
+        'width': 26.0,
         'height': 15.0,
         'borderRadius': 5.0,
         'shape': ShapeType.smallRectangle,
       },
       {
-        'width': 15.0,
+        'width': 14.0,
         'height': 30.0,
         'borderRadius': 5.0,
         'shape': ShapeType.mediumRectangle,
       },
       {
-        'width': 30.0,
+        'width': 25.0,
         'height': 30.0,
         'borderRadius': 4.0,
         'shape': ShapeType.largeSquare,

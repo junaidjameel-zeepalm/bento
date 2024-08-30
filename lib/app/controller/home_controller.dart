@@ -6,10 +6,7 @@ import 'package:get/get.dart';
 class HomeController extends GetxController {
   final linkController = TextEditingController();
 
-  var items = <GridItem>[
-    for (int i = 0; i < 6; i++)
-      GridItem(id: 'Item $i', shape: ShapeType.square, type: ItemType.link)
-  ].obs;
+  var items = <GridItem>[].obs;
 
   var itemShapes =
       <String, ShapeType>{}.obs; // Map to store shape for each item identifier
@@ -55,6 +52,14 @@ class HomeController extends GetxController {
     }
   }
 
+  // Method to update the text of an item
+  void updateItemText(String itemId, String text) {
+    int index = items.indexWhere((item) => item.id == itemId);
+    if (index != -1) {
+      items[index] = items[index].copyWith(text: text);
+    }
+  }
+
   // Method to update the type of an item
   void updateItemType(String itemId, ItemType type) {
     int index = items.indexWhere((item) => item.id == itemId);
@@ -64,23 +69,19 @@ class HomeController extends GetxController {
   }
 
   // Method to get the shape of an item
-  // ShapeType getItemShape(String itemId) {
-  //   int index = items.indexWhere((item) => item.id == itemId);
-  //   return index != -1 ? items[index].shape : ShapeType.square;
-  // }
+  ShapeType getItemShape(String id) {
+    return getItem(id).shape;
+  }
+
+  // Method to get a specific item
+  GridItem getItem(String id) {
+    return items.firstWhere((item) => item.id == id);
+  }
 
   // Method to get the link of an item
   String? getItemLink(String itemId) {
     int index = items.indexWhere((item) => item.id == itemId);
     return index != -1 ? items[index].link : null;
-  }
-
-  ShapeType getItemShape(String id) {
-    return getItem(id).shape;
-  }
-
-  GridItem getItem(String id) {
-    return items.firstWhere((item) => item.id == id);
   }
 
   // Method to get the size of an item based on its shape
@@ -99,5 +100,13 @@ class HomeController extends GetxController {
       default:
         return const Size(200, 260); // Default size
     }
+  }
+
+  // for mobile view border selection
+
+  var selectedItemId = ''.obs;
+
+  void setSelectedItem(String itemId) {
+    selectedItemId.value = itemId;
   }
 }

@@ -1,5 +1,4 @@
 import 'package:bento/app/data/constant/data.dart';
-import 'package:bento/app/check.dart';
 import 'package:bento/app/modules/home/home.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';

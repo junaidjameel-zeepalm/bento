@@ -4,6 +4,7 @@ import 'package:bento/app/controller/home_controller.dart';
 import 'package:bento/app/data/constant/data.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -139,19 +140,6 @@ class WidgetCreationTileState extends State<WidgetCreationTile>
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color.fromARGB(255, 85, 222, 90),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16.0, vertical: 8.0),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                  ),
-                  child: const Text('Share my Profile',
-                      style: TextStyle(color: Colors.white)),
-                ),
                 const SizedBox(width: 8.0),
                 ...icons.map((icon) {
                   return Padding(
@@ -172,8 +160,7 @@ class WidgetCreationTileState extends State<WidgetCreationTile>
                             _onPhotoIconPressed(); // Call method to pick image
                           } else {
                             // Handle text item creation
-                            hc.addItem(
-                                type: ItemType.text, content: 'Sample Text');
+                            hc.addItem(type: ItemType.text, content: '');
                           }
                         },
                       ),
@@ -253,69 +240,71 @@ class LinkInputFieldState extends State<LinkInputField> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: Get.width * .2, // Adjust the width to your needs
-      padding: const EdgeInsets.only(right: 10.0),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12.0),
-        boxShadow: const [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 20,
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: TextField(
-              controller: _hc.linkController,
-              focusNode: widget.focusNode,
-              decoration: InputDecoration(
-                hintText: 'Enter Link',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(15.0),
+    return LayoutBuilder(builder: (context, constraints) {
+      bool isMobile = constraints.maxWidth < 1300;
+      return Container(
+        width: isMobile ? Get.width * .5 : Get.width * .17,
+        padding: const EdgeInsets.only(right: 10.0),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12.0),
+          boxShadow: const [
+            BoxShadow(
+              color: Colors.black12,
+              blurRadius: 20,
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: TextField(
+                controller: _hc.linkController,
+                focusNode: widget.focusNode,
+                decoration: InputDecoration(
+                  hintText: 'Enter Link',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15.0),
+                  ),
+                  errorBorder: InputBorder.none,
+                  focusedBorder: InputBorder.none,
+                  enabledBorder: InputBorder.none,
+                  contentPadding: const EdgeInsets.symmetric(
+                      vertical: 0.0, horizontal: 15.0),
                 ),
-                errorBorder: InputBorder.none,
-                focusedBorder: InputBorder.none,
-                enabledBorder: InputBorder.none,
-                contentPadding:
-                    const EdgeInsets.symmetric(vertical: 0.0, horizontal: 15.0),
               ),
             ),
-          ),
-          const SizedBox(width: 10),
-          OutlinedButton(
-            onPressed: () {
-              if (_hc.linkController.text.isNotEmpty) {
-                _hc.addItem(
-                    type: ItemType.link, content: _hc.linkController.text);
-                _hc.linkController.clear();
-              }
-            },
-            style: OutlinedButton.styleFrom(
-              foregroundColor: AppColors.kBlack,
-              backgroundColor: _buttonColor,
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10.0),
+            const SizedBox(width: 10),
+            OutlinedButton(
+              onPressed: () {
+                if (_hc.linkController.text.isNotEmpty) {
+                  _hc.addItem(
+                      type: ItemType.link, content: _hc.linkController.text);
+                  _hc.linkController.clear();
+                }
+              },
+              style: OutlinedButton.styleFrom(
+                foregroundColor: AppColors.kBlack,
+                backgroundColor: _buttonColor,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+                side: BorderSide(color: AppColors.kgrey.withOpacity(.25)),
               ),
-              side: BorderSide(
-                  color: AppColors.kgrey
-                      .withOpacity(.25)), // Set the border color to grey
+              child: Text(
+                _buttonText,
+                style: AppTypography.kSemiBold16.copyWith(
+                    fontSize: 13,
+                    color: _buttonText == 'Add'
+                        ? AppColors.kWhite
+                        : AppColors.kBlack),
+              ),
             ),
-            child: Text(
-              _buttonText,
-              style: AppTypography.kSemiBold16.copyWith(
-                  fontSize: 13,
-                  color: _buttonText == 'Add'
-                      ? AppColors.kWhite
-                      : AppColors.kBlack),
-            ),
-          ),
-        ],
-      ),
-    );
+          ],
+        ),
+      );
+    });
   }
 }

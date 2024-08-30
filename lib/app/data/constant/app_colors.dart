@@ -6,6 +6,8 @@ class AppColors {
   static Color lightSlateGray = const Color(0xFF353F48);
   static Color kgrey = const Color(0xFFBDC3C7);
   static Color kWhite = const Color(0xFFEEEEEE);
+  static Color kWhite1 = Colors.white;
+
   static Color kYellow = const Color(0xFFF6C90E);
   static Color kRed = const Color(0xFFE74C3C);
   static Color kGreen = const Color(0xFF2ECC71);

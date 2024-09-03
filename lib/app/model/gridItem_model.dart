@@ -7,6 +7,7 @@ class GridItem {
   final String? link; // For link type
   final String? imagePath; // For image type
   final String? text; // For text type
+  final String? sectionTile;
 
   GridItem({
     required this.id,
@@ -15,6 +16,7 @@ class GridItem {
     this.link,
     this.imagePath,
     this.text,
+    this.sectionTile,
   });
 
   GridItem copyWith({
@@ -24,6 +26,7 @@ class GridItem {
     String? link,
     String? imagePath,
     String? text,
+    String? sectionTile,
   }) {
     return GridItem(
       id: id ?? this.id,
@@ -32,13 +35,9 @@ class GridItem {
       link: link ?? this.link,
       imagePath: imagePath ?? this.imagePath,
       text: text ?? this.text,
+      sectionTile: sectionTile ?? this.sectionTile,
     );
   }
 }
 
-enum ItemType {
-  link,
-  image,
-  text,
-  // Add more types as needed
-}
+enum ItemType { link, image, text, sectionTile }

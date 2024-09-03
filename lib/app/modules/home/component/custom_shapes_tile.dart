@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../../../data/enums/shape_enum.dart';
 
@@ -12,6 +13,8 @@ class CustomShapeButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    bool isMobile = Get.width < 1300;
+
     final List<Map<String, dynamic>> shapes = [
       {
         'width': 14.0,
@@ -49,17 +52,31 @@ class CustomShapeButton extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: shapes.map((shape) {
-          return IconButton(
-            onPressed: () => onShapeSelected(shape['shape']),
-            icon: Container(
-              width: shape['width'],
-              height: shape['height'],
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(shape['borderRadius']),
-              ),
-            ),
-          );
+          return isMobile
+              ? IconButton(
+                  onPressed: () => onShapeSelected(shape['shape']),
+                  icon: Container(
+                    width: shape['width'],
+                    height: shape['height'],
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius:
+                          BorderRadius.circular(shape['borderRadius']),
+                    ),
+                  ),
+                )
+              : InkWell(
+                  onTap: () => onShapeSelected(shape['shape']),
+                  child: Container(
+                    width: shape['width'],
+                    height: shape['height'],
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius:
+                          BorderRadius.circular(shape['borderRadius']),
+                    ),
+                  ),
+                );
         }).toList(),
       ),
     );

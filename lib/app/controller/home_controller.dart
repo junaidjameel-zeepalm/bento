@@ -20,13 +20,15 @@ class HomeController extends GetxController {
   void addItem({ItemType type = ItemType.link, String content = ''}) {
     String newItemId = 'Item ${items.length}';
     GridItem newItem = GridItem(
-      id: newItemId,
-      shape: ShapeType.square,
-      type: type,
-      link: type == ItemType.link ? content : null,
-      imagePath: type == ItemType.image ? content : null,
-      text: type == ItemType.text ? content : null,
-    );
+        id: newItemId,
+        shape: type == ItemType.sectionTile
+            ? ShapeType.sectionTileShape
+            : ShapeType.square,
+        type: type,
+        link: type == ItemType.link ? content : null,
+        imagePath: type == ItemType.image ? content : null,
+        text: type == ItemType.text ? content : null,
+        sectionTile: type == ItemType.sectionTile ? content : null);
     items.add(newItem);
   }
 
@@ -79,28 +81,14 @@ class HomeController extends GetxController {
   }
 
   // Method to get the link of an item
-  String? getItemLink(String itemId) {
+  String? getItemLink(
+    String itemId,
+  ) {
     int index = items.indexWhere((item) => item.id == itemId);
     return index != -1 ? items[index].link : null;
   }
 
   // Method to get the size of an item based on its shape
-  Size getItemSize(String itemId) {
-    ShapeType shape = getItemShape(itemId);
-
-    switch (shape) {
-      case ShapeType.mediumRectangle:
-        return const Size(200, 490); // Specific size for medium rectangle
-      case ShapeType.square:
-        return const Size(200, 260); // Specific size for square
-      case ShapeType.smallRectangle:
-        return const Size(430, 150); // Specific size for small rectangle
-      case ShapeType.largeSquare:
-        return const Size(430, 490); // Specific size for large square
-      default:
-        return const Size(200, 260); // Default size
-    }
-  }
 
   // for mobile view border selection
 

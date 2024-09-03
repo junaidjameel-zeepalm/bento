@@ -2,12 +2,13 @@ import 'dart:developer';
 
 import 'package:bento/app/controller/home_controller.dart';
 import 'package:bento/app/data/constant/data.dart';
+import 'package:bento/app/modules/home/component/custom_shapes_tile.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../../data/enums/shape_enum.dart';
 import '../../../model/gridItem_model.dart';
 
 class WidgetCreationTile extends StatefulWidget {
@@ -19,10 +20,9 @@ class WidgetCreationTile extends StatefulWidget {
 
 class WidgetCreationTileState extends State<WidgetCreationTile>
     with SingleTickerProviderStateMixin {
-  late final HomeController hc;
-
   bool _showLinkInput = false;
   final FocusNode _focusNode = FocusNode();
+  late final HomeController hc; // Declare HomeController here
 
   late final AnimationController _animationController;
   late final Animation<Offset> _slideAnimation;
@@ -31,7 +31,7 @@ class WidgetCreationTileState extends State<WidgetCreationTile>
   void initState() {
     super.initState();
 
-    hc = Get.put(HomeController()); // Get existing instance
+    hc = Get.find<HomeController>();
 
     _animationController = AnimationController(
       vsync: this,
@@ -77,17 +77,12 @@ class WidgetCreationTileState extends State<WidgetCreationTile>
       });
       hc.addItem(type: ItemType.image, content: _selectedImagePath);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('No image selected'),
-        ),
-      );
+      log('Image not Sellected');
     }
   }
 
   Future<void> _onPhotoIconPressed() async {
-    await _pickImage(
-        ImageSource.gallery); // Open image picker to select from gallery
+    await _pickImage(ImageSource.gallery);
   }
 
   @override
@@ -100,106 +95,127 @@ class WidgetCreationTileState extends State<WidgetCreationTile>
 
   @override
   Widget build(BuildContext context) {
+    bool isMobile = Get.width < 1300;
     final List<IconData> icons = [
       Icons.link,
       CupertinoIcons.photo,
       Icons.format_quote,
+      CupertinoIcons.selection_pin_in_out
     ];
 
-    return GestureDetector(
-      onTap: () {
-        if (_showLinkInput) _toggleLinkInputVisibility();
-      },
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          SlideTransition(
-            position: _slideAnimation,
-            child: AnimatedOpacity(
-              opacity: _showLinkInput ? 1.0 : 0.0,
-              duration: const Duration(milliseconds: 300),
-              child: _showLinkInput
-                  ? LinkInputField(focusNode: _focusNode)
-                  : const SizedBox.shrink(),
-            ),
-          ),
-          const SizedBox(height: 12.0),
-          Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 15.0, vertical: 8.0),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12.0),
-              boxShadow: const [
-                BoxShadow(
-                  color: Colors.black12,
-                  blurRadius: 8,
-                ),
-              ],
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const SizedBox(width: 8.0),
-                ...icons.map((icon) {
-                  return Padding(
-                    padding: const EdgeInsets.only(right: 8.0),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: AppColors.kWhite.withOpacity(.7),
-                        borderRadius: BorderRadius.circular(8.0),
-                        border:
-                            Border.all(color: AppColors.kgrey.withOpacity(.25)),
-                      ),
-                      child: IconButton(
-                        icon: Icon(icon, color: Colors.grey[800]),
-                        onPressed: () {
-                          if (icon == Icons.link) {
-                            _toggleLinkInputVisibility();
-                          } else if (icon == CupertinoIcons.photo) {
-                            _onPhotoIconPressed(); // Call method to pick image
-                          } else {
-                            // Handle text item creation
-                            hc.addItem(type: ItemType.text, content: '');
-                          }
-                        },
-                      ),
+    return Obx(
+      () => hc.selectedItemId.value != '' && isMobile
+          ? SizedBox(
+              width: Get.width * .65,
+              child: CustomShapeButton(
+                onShapeSelected: (ShapeType shape) {
+                  hc.updateItemShape(hc.selectedItemId.value, shape);
+                },
+              ),
+            )
+          : GestureDetector(
+              onTap: () {
+                if (_showLinkInput) _toggleLinkInputVisibility();
+              },
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SlideTransition(
+                    position: _slideAnimation,
+                    child: AnimatedOpacity(
+                      opacity: _showLinkInput ? 1.0 : 0.0,
+                      duration: const Duration(milliseconds: 300),
+                      child: _showLinkInput
+                          ? LinkInputField(onHide: _toggleLinkInputVisibility)
+                          : const SizedBox.shrink(),
                     ),
-                  );
-                }),
-                const SizedBox(width: 12.0),
-                Container(
-                  width: 1,
-                  height: 24,
-                  color: Colors.grey[400],
-                ),
-                const SizedBox(width: 12.0),
-                Container(
-                  padding: const EdgeInsets.all(8.0),
-                  decoration: BoxDecoration(
-                    color: Colors.black,
-                    borderRadius: BorderRadius.circular(8.0),
                   ),
-                  child: const Icon(Icons.laptop, color: Colors.white),
-                ),
-                const SizedBox(width: 8.0),
-                IconButton(
-                  icon: Icon(Icons.phone_android, color: Colors.grey[800]),
-                  onPressed: () {},
-                ),
-              ],
+                  const SizedBox(height: 12.0),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 15.0, vertical: 8.0),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12.0),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black12,
+                          blurRadius: 8,
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const SizedBox(width: 8.0),
+                        ...List.generate(icons.length, (index) {
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 8.0),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: AppColors.kWhite.withOpacity(.7),
+                                borderRadius: BorderRadius.circular(8.0),
+                                border: Border.all(
+                                    color: AppColors.kgrey.withOpacity(.25)),
+                              ),
+                              child: IconButton(
+                                icon:
+                                    Icon(icons[index], color: Colors.grey[800]),
+                                onPressed: () {
+                                  if (index == 0) {
+                                    _toggleLinkInputVisibility();
+                                  } else if (index == 1) {
+                                    _onPhotoIconPressed(); // Call method to pick image
+                                  } else if (index == 2) {
+                                    // Handle text item creation
+                                    hc.addItem(
+                                        type: ItemType.text, content: '');
+                                  } else if (index == 3) {
+                                    // Handle quote item creation or other functionality
+                                    hc.addItem(
+                                        type: ItemType.sectionTile,
+                                        content: 'section tile');
+                                  }
+                                },
+                              ),
+                            ),
+                          );
+                        }),
+                        const SizedBox(width: 12.0),
+                        Container(
+                          width: 1,
+                          height: 24,
+                          color: Colors.grey[400],
+                        ),
+                        const SizedBox(width: 12.0),
+                        Container(
+                          padding: const EdgeInsets.all(8.0),
+                          decoration: BoxDecoration(
+                            color: Colors.black,
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                          child: const Icon(Icons.laptop, color: Colors.white),
+                        ),
+                        const SizedBox(width: 8.0),
+                        IconButton(
+                          icon: Icon(Icons.phone_android,
+                              color: Colors.grey[800]),
+                          onPressed: () {},
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
-      ),
     );
   }
 }
 
 class LinkInputField extends StatefulWidget {
-  final FocusNode focusNode;
+  final VoidCallback onHide;
 
-  const LinkInputField({super.key, required this.focusNode});
+  const LinkInputField({super.key, required this.onHide});
 
   @override
   LinkInputFieldState createState() => LinkInputFieldState();
@@ -214,7 +230,7 @@ class LinkInputFieldState extends State<LinkInputField> {
   void initState() {
     super.initState();
 
-    _hc = Get.find<HomeController>(); // Get existing instance
+    _hc = Get.find<HomeController>(); // Use Get.find to get the instance
 
     // Listen for changes in the text field
     _hc.linkController.addListener(_updateButtonState);
@@ -260,7 +276,6 @@ class LinkInputFieldState extends State<LinkInputField> {
             Expanded(
               child: TextField(
                 controller: _hc.linkController,
-                focusNode: widget.focusNode,
                 decoration: InputDecoration(
                   hintText: 'Enter Link',
                   border: OutlineInputBorder(
@@ -277,10 +292,12 @@ class LinkInputFieldState extends State<LinkInputField> {
             const SizedBox(width: 10),
             OutlinedButton(
               onPressed: () {
+                log('Link: ${_hc.linkController.text}, isNotEmpty: ${_hc.linkController.text.isNotEmpty}');
                 if (_hc.linkController.text.isNotEmpty) {
                   _hc.addItem(
                       type: ItemType.link, content: _hc.linkController.text);
                   _hc.linkController.clear();
+                  widget.onHide(); // Hide the LinkInputField
                 }
               },
               style: OutlinedButton.styleFrom(

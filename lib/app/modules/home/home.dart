@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:any_link_preview/any_link_preview.dart';
 import 'package:bento/app/controller/home_controller.dart';
 import 'package:bento/app/data/constant/data.dart';
 import 'package:bento/app/data/constant/style.dart';
@@ -21,7 +22,7 @@ class BentoHomePage extends StatefulWidget {
 class BentoHomePageState extends State<BentoHomePage> {
   final HoverController hoverController = Get.put(HoverController());
   File? _selectedImage;
-
+  HomeController get hc => Get.find<HomeController>();
   Future<void> _pickImage() async {
     ImagePickerService imagePicker = ImagePickerService();
     final File? image = await imagePicker.pickImageFromGallery();
@@ -33,10 +34,18 @@ class BentoHomePageState extends State<BentoHomePage> {
   }
 
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    // Check if the keyboard is visible
+
     return GestureDetector(
-      onTap: () => Get.find<HomeController>().selectedItemId.value = '',
+      onTap: () => hc.selectedItemId.value = '',
       child: Scaffold(
+        resizeToAvoidBottomInset: true,
         floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
         floatingActionButton: const WidgetCreationTile(),
         body: LayoutBuilder(
@@ -142,6 +151,41 @@ class BentoHomePageState extends State<BentoHomePage> {
           const SizedBox(height: 16),
         ],
       ),
+    );
+  }
+}
+
+class Link extends StatelessWidget {
+  const Link({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return AnyLinkPreview(
+      link: "https://www.facebook.com/",
+      displayDirection: UIDirection.uiDirectionHorizontal,
+      showMultimedia: false,
+
+      bodyMaxLines: 5,
+      bodyTextOverflow: TextOverflow.ellipsis,
+      titleStyle: const TextStyle(
+        color: Colors.black,
+        fontWeight: FontWeight.bold,
+        fontSize: 15,
+      ),
+      bodyStyle: const TextStyle(color: Colors.grey, fontSize: 12),
+      errorBody: 'Show my custom error body',
+      errorTitle: 'Show my custom error title',
+      errorWidget: Container(
+        color: Colors.grey[300],
+        child: const Text('Oops!'),
+      ),
+      errorImage: "https://google.com/",
+      cache: const Duration(days: 7),
+      backgroundColor: Colors.grey[300],
+      borderRadius: 12,
+      removeElevation: false,
+      boxShadow: const [BoxShadow(blurRadius: 3, color: Colors.grey)],
+      onTap: () {}, // This disables tap event
     );
   }
 }

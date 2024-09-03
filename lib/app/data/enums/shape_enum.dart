@@ -1,1 +1,7 @@
-enum ShapeType { mediumRectangle, square, smallRectangle, largeSquare }
+enum ShapeType {
+  mediumRectangle,
+  square,
+  smallRectangle,
+  largeSquare,
+  sectionTileShape
+}

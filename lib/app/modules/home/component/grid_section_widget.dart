@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:bento/app/controller/home_controller.dart';
 import 'package:bento/app/model/gridItem_model.dart';
 import 'package:bento/app/modules/home/component/hover_widget.dart';
@@ -114,7 +116,6 @@ class _GridSectionWidgetState extends State<GridSectionWidget> {
         (index) {
           final item = _hc.items[index];
 
-          // Use OnHoverButton instead of the previous grid items
           return ReorderableDragStartListener(
             index: index,
             key: ValueKey(item.id),

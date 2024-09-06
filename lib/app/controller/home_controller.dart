@@ -1,60 +1,193 @@
+import 'dart:async';
+import 'dart:developer';
+import 'package:bento/app/controller/auth_controller.dart';
 import 'package:bento/app/data/enums/shape_enum.dart';
 import 'package:bento/app/model/gridItem_model.dart';
+import 'package:bento/app/repo/widget_repo.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class HomeController extends GetxController {
   final linkController = TextEditingController();
+  final String currentUid = Get.find<AuthController>().user!.uid;
 
   var items = <GridItem>[].obs;
+  var selectedItemId = ''.obs;
 
-  var itemShapes =
-      <String, ShapeType>{}.obs; // Map to store shape for each item identifier
+  Timer? _debounce;
 
-  // Method to reorder items
-  void reorderItems(List<GridItem> newItems) {
-    items.assignAll(newItems);
+  final WidgetRepo _widgetRepo = WidgetRepo();
+
+  final Map<String, TextEditingController> textControllers = {};
+  final Map<String, TextEditingController> sectionTextControllers = {};
+
+  @override
+  void onInit() {
+    super.onInit();
+    fetchWidgets();
   }
 
-  // Method to add a new item
-  void addItem({ItemType type = ItemType.link, String content = ''}) {
+  // Fetches widgets and initializes controllers
+  void fetchWidgets() async {
+    try {
+      var fetchedItems = await _widgetRepo.fetchUserWidgets(currentUid);
+      items.assignAll(fetchedItems);
+
+      // Initialize text and section text controllers for fetched items
+      for (var item in items) {
+        if (!textControllers.containsKey(item.id)) {
+          textControllers[item.id] = TextEditingController(text: item.text);
+          textControllers[item.id]!.addListener(() {
+            _onTextChanged(item.id);
+          });
+        }
+
+        if (!sectionTextControllers.containsKey(item.id)) {
+          sectionTextControllers[item.id] =
+              TextEditingController(text: item.sectionTile);
+          sectionTextControllers[item.id]!.addListener(() {
+            _onSectionTextChanged(item.id);
+          });
+        }
+      }
+
+      log('Widgets fetched successfully!');
+    } catch (e) {
+      log('Failed to fetch widgets: $e');
+    }
+  }
+
+  // Handles changes in the text field and saves to Firestore (debounced)
+  void _onTextChanged(String itemId) {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      _updateTextInFirestore(itemId, textControllers[itemId]!.text);
+    });
+  }
+
+  // Handles changes in the section text field and saves to Firestore (debounced)
+  void _onSectionTextChanged(String itemId) {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      _updateSectionTextInFirestore(
+          itemId, sectionTextControllers[itemId]!.text);
+    });
+  }
+
+  // Updates the regular text in Firestore
+  void _updateTextInFirestore(String itemId, String newText) async {
+    if (newText.isNotEmpty) {
+      try {
+        updateItemText(itemId, newText);
+        await _widgetRepo.updateWidgetText(currentUid, itemId, newText);
+        log('Text updated in Firestore successfully!');
+      } catch (e) {
+        log('Failed to update text in Firestore: $e');
+      }
+    }
+  }
+
+  // Updates the section text in Firestore
+  void _updateSectionTextInFirestore(String itemId, String newText) async {
+    if (newText.isNotEmpty) {
+      try {
+        updateItemSectionText(itemId, newText);
+        await _widgetRepo.updateSectionText(currentUid, itemId, newText);
+        log('Section text updated in Firestore successfully!');
+      } catch (e) {
+        log('Failed to update section text in Firestore: $e');
+      }
+    }
+  }
+
+  // Returns the text controller for a given itemId (or initializes it)
+  TextEditingController getTextController(String itemId) {
+    return textControllers[itemId] ??= TextEditingController();
+  }
+
+  // Returns the section text controller for a given itemId (or initializes it)
+  TextEditingController getSectionTextController(String itemId) {
+    return sectionTextControllers[itemId] ??= TextEditingController();
+  }
+
+  @override
+  void onClose() {
+    textControllers.forEach((_, controller) => controller.dispose());
+    sectionTextControllers.forEach((_, controller) => controller.dispose());
+    super.onClose();
+  }
+
+  // Sets the selected item by ID
+  void setSelectedItem(String itemId) {
+    selectedItemId.value = itemId;
+    log('Selected item ID set to: $itemId');
+  }
+
+  // Reorders items and updates Firestore
+  void reorderItems(List<GridItem> newItems) async {
+    try {
+      items.assignAll(newItems);
+      await _widgetRepo.reorderWidgets(currentUid, newItems);
+      log('Items reordered and updated in Firestore successfully!');
+    } catch (e) {
+      log('Failed to reorder items in Firestore: $e');
+    }
+  }
+
+  // Adds a new item to the grid and Firestore
+  void addItem({ItemType type = ItemType.link, String content = ''}) async {
     String newItemId = 'Item ${items.length}';
     GridItem newItem = GridItem(
-        id: newItemId,
-        shape: type == ItemType.sectionTile
-            ? ShapeType.sectionTileShape
-            : ShapeType.square,
-        type: type,
-        link: type == ItemType.link ? content : null,
-        imagePath: type == ItemType.image ? content : null,
-        text: type == ItemType.text ? content : null,
-        sectionTile: type == ItemType.sectionTile ? content : null);
+      id: newItemId,
+      shape: type == ItemType.sectionTile
+          ? ShapeType.sectionTileShape
+          : ShapeType.square,
+      type: type,
+      link: type == ItemType.link ? content : null,
+      imagePath: type == ItemType.image ? content : null,
+      text: type == ItemType.text ? content : null,
+      sectionTile: type == ItemType.sectionTile ? content : null,
+      position: items.length,
+    );
+
     items.add(newItem);
+
+    try {
+      await _widgetRepo.addWidget(currentUid, newItem);
+      log('Item added to Firestore successfully!');
+    } catch (e) {
+      log('Failed to add item to Firestore: $e');
+    }
   }
 
-  // Method to delete an item by ID
-  void deleteItem(String itemId) {
+  // Deletes an item from the grid and Firestore
+  Future<void> deleteItem(String itemId) async {
     items.removeWhere((item) => item.id == itemId);
+    textControllers.remove(itemId)?.dispose();
+    sectionTextControllers.remove(itemId)?.dispose();
+    try {
+      await _widgetRepo.deleteWidget(currentUid, itemId);
+      log('Item deleted from Firestore successfully!');
+    } catch (e) {
+      log('Failed to delete item from Firestore: $e');
+    }
   }
 
-  // Method to update the shape of an item
-  void updateItemShape(String itemId, ShapeType shape) {
+  // Updates an item's shape in Firestore
+  Future<void> updateItemShape(String itemId, ShapeType shape) async {
     int index = items.indexWhere((item) => item.id == itemId);
-
     if (index != -1) {
       items[index] = items[index].copyWith(shape: shape);
+      try {
+        await _widgetRepo.updateWidgetShape(currentUid, itemId, shape.name);
+        log('Shape updated in Firestore successfully!');
+      } catch (e) {
+        log('Failed to update shape in Firestore: $e');
+      }
     }
   }
 
-  // Method to update the link of an item
-  void updateItemLink(String itemId, String link) {
-    int index = items.indexWhere((item) => item.id == itemId);
-    if (index != -1) {
-      items[index] = items[index].copyWith(link: link);
-    }
-  }
-
-  // Method to update the text of an item
+  // Updates the item text locally
   void updateItemText(String itemId, String text) {
     int index = items.indexWhere((item) => item.id == itemId);
     if (index != -1) {
@@ -62,39 +195,27 @@ class HomeController extends GetxController {
     }
   }
 
-  // Method to update the type of an item
-  void updateItemType(String itemId, ItemType type) {
+  // Updates the section text locally
+  void updateItemSectionText(String itemId, String text) {
     int index = items.indexWhere((item) => item.id == itemId);
     if (index != -1) {
-      items[index] = items[index].copyWith(type: type);
+      items[index] = items[index].copyWith(sectionTile: text);
     }
   }
 
-  // Method to get the shape of an item
+  // Retrieves the shape of a specific item
   ShapeType getItemShape(String id) {
     return getItem(id).shape;
   }
 
-  // Method to get a specific item
+  // Retrieves a specific item by ID
   GridItem getItem(String id) {
     return items.firstWhere((item) => item.id == id);
   }
 
-  // Method to get the link of an item
-  String? getItemLink(
-    String itemId,
-  ) {
+  // Retrieves a link associated with an item by ID
+  String? getItemLink(String itemId) {
     int index = items.indexWhere((item) => item.id == itemId);
     return index != -1 ? items[index].link : null;
-  }
-
-  // Method to get the size of an item based on its shape
-
-  // for mobile view border selection
-
-  var selectedItemId = ''.obs;
-
-  void setSelectedItem(String itemId) {
-    selectedItemId.value = itemId;
   }
 }

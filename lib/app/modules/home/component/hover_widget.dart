@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:bento/app/controller/home_controller.dart';
 import 'package:bento/app/controller/link_controller.dart';
+import 'package:bento/app/data/constant/app_colors.dart';
 import 'package:bento/app/data/constant/data.dart';
 import 'package:bento/app/data/constant/style.dart';
 import 'package:bento/app/modules/home/link.dart';
@@ -25,17 +26,20 @@ class OnHoverButton extends StatefulWidget {
 
 class _OnHoverButtonState extends State<OnHoverButton> {
   final HomeController _hc = Get.find<HomeController>();
-  final TextEditingController _textController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
   bool isHovered = false;
 
   @override
   void initState() {
     super.initState();
-    _textController.text = _hc.getItem(widget.itemId).text ?? '';
-
-    WidgetsBinding.instance
-        .addPostFrameCallback((_) => _focusNode.requestFocus());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _focusNode.addListener(() {
+        // if (!_focusNode.hasFocus) {
+        //   _hc.selectedItemId.value = '';
+        // }
+      });
+      //  _focusNode.requestFocus();
+    });
   }
 
   @override
@@ -153,7 +157,7 @@ class _OnHoverButtonState extends State<OnHoverButton> {
       ShapeType.smallRectangle: Size(430 * scalingFactor, 250 * scalingFactor),
       ShapeType.mediumRectangle: Size(200 * scalingFactor, 460 * scalingFactor),
       ShapeType.largeSquare: Size(430 * scalingFactor, 460 * scalingFactor),
-      ShapeType.sectionTileShape: Size(Get.width, 120 * scalingFactor)
+      ShapeType.sectionTileShape: Size(430 * scalingFactor, 200 * scalingFactor)
     };
 
     return Obx(() {
@@ -186,7 +190,7 @@ class _OnHoverButtonState extends State<OnHoverButton> {
                             decoration: BoxDecoration(
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.grey.withOpacity(0.1),
+                                  color: AppColors.kgrey,
                                   spreadRadius: 5,
                                   blurRadius: 7,
                                   offset: const Offset(0, 3),
@@ -277,7 +281,7 @@ class _OnHoverButtonState extends State<OnHoverButton> {
     return imagePath != null
         ? Center(
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(30),
+              borderRadius: BorderRadius.circular(16),
               child: Image.network(
                 imagePath,
                 width: containerSize.width,
@@ -300,10 +304,20 @@ class _OnHoverButtonState extends State<OnHoverButton> {
             margin: const EdgeInsets.symmetric(vertical: 10),
             height: containerSize.height,
             decoration: BoxDecoration(
-              color: AppColors.kgrey.withOpacity(.3),
-              borderRadius: BorderRadius.circular(20),
+              color: AppColors.kgrey,
+              borderRadius: BorderRadius.circular(14),
             ),
-            child: const TextField()));
+            child: TextField(
+              controller: _hc.getTextController(widget.itemId),
+              maxLines: 3,
+              decoration: InputDecoration(
+                  hintText: 'Section Tile',
+                  border: InputBorder.none,
+                  hintStyle: AppTypography.kRegular16
+                      .copyWith(fontWeight: FontWeight.w600),
+                  contentPadding:
+                      const EdgeInsets.symmetric(vertical: 12, horizontal: 10)),
+            )));
   }
 
   Widget _buildTextWidget(isHovered, Size containerSize, bool isMobile) {
@@ -313,15 +327,14 @@ class _OnHoverButtonState extends State<OnHoverButton> {
         height: containerSize.height,
         padding: const EdgeInsets.symmetric(horizontal: 10),
         decoration: BoxDecoration(
-          color:
-              isHovered ? AppColors.kgrey.withOpacity(.4) : Colors.transparent,
+          color: isHovered ? AppColors.kgrey : Colors.transparent,
           borderRadius: BorderRadius.circular(20),
         ),
         child: TextField(
           maxLines: null,
           cursorColor: AppColors.kBlack,
           focusNode: isMobile ? null : _focusNode,
-          controller: _textController,
+          controller: _hc.getTextController(widget.itemId),
           style: const TextStyle(color: Colors.black),
           decoration: InputDecoration(
             contentPadding: const EdgeInsets.symmetric(vertical: 20),

@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 import 'package:any_link_preview/any_link_preview.dart';
 import 'package:bento/app/controller/home_controller.dart';
@@ -8,6 +9,7 @@ import 'package:bento/app/modules/home/component/widget_creation_tile.dart';
 import 'package:bento/app/services/image_picker.dart';
 import 'package:bento/app/widget/hover_delete_btn.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controller/hover_controller.dart';
@@ -43,21 +45,55 @@ class BentoHomePageState extends State<BentoHomePage> {
     // Check if the keyboard is visible
 
     return GestureDetector(
-      onTap: () => hc.selectedItemId.value = '',
-      child: Scaffold(
-        resizeToAvoidBottomInset: true,
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-        floatingActionButton: const WidgetCreationTile(),
-        body: LayoutBuilder(
-          builder: (context, constraints) {
-            bool isMobile = constraints.maxWidth < 1300;
-            return isMobile
-                ? _buildMobileLayout(isMobile)
-                : _buildDesktopLayout(isMobile);
-          },
-        ),
-      ),
-    );
+        onTap: () {
+          hc.selectedItemId.value = '';
+          log('selectedvalue ${hc.selectedItemId}');
+        },
+        child: Scaffold(
+          backgroundColor: kIsWeb ? AppColors.kgrey.withOpacity(.3) : null,
+          resizeToAvoidBottomInset: true,
+          floatingActionButtonLocation:
+              FloatingActionButtonLocation.centerFloat,
+          floatingActionButton: const WidgetCreationTile(),
+          body: Obx(() {
+            hoverController.initialView.value;
+            return LayoutBuilder(
+              builder: (context, constraints) {
+                bool isMobile = constraints.maxWidth < 1300;
+
+                // First, check the hoverController.initialView
+                if (hoverController.initialView.value == DeviceView.mobile) {
+                  return Center(
+                    child: Container(
+                        margin: const EdgeInsets.all(20),
+                        alignment: Alignment.center,
+                        width: 500,
+                        decoration: BoxDecoration(
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.withOpacity(0.2),
+                                spreadRadius: 5,
+                                blurRadius: 7,
+                                offset: const Offset(
+                                    0, 3), // changes position of shadow
+                              ),
+                            ],
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(30)),
+                        child: _buildMobileLayout(Get.width > 600)),
+                  );
+                } else {
+                  // Otherwise, use screen size (isMobile) to determine layout
+                  return isMobile
+                      ? _buildMobileLayout(
+                          isMobile) // Show mobile layout based on screen size
+                      : _buildDesktopLayout(
+                          isMobile); // Show desktop layout for larger screens
+                }
+              },
+            );
+          }),
+        ));
   }
 
   Widget _buildDesktopLayout(bool isMobile) {
@@ -105,7 +141,8 @@ class BentoHomePageState extends State<BentoHomePage> {
                   radius: isMobile ? 80 : 100,
                   backgroundImage: _selectedImage != null
                       ? NetworkImage(_selectedImage!.path)
-                      : const NetworkImage('https://i.imgur.com/BoN9kdC.png')
+                      : const NetworkImage(
+                              'https://images.pexels.com/photos/20017025/pexels-photo-20017025/free-photo-of-photo-of-a-man-in-a-black-blouse-and-sunglasses-standing-in-sunlight.jpeg?auto=compress&cs=tinysrgb&w=800&lazy=load')
                           as ImageProvider,
                   backgroundColor: hoverController.isHovered.value
                       ? Colors.blue

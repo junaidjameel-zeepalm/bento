@@ -1,15 +1,15 @@
 import 'dart:developer';
-
-import 'package:bento/app/controller/home_controller.dart';
-import 'package:bento/app/data/constant/data.dart';
-import 'package:bento/app/modules/home/component/custom_shapes_tile.dart';
+import 'package:bento/app/controller/hover_controller.dart';
+import 'package:bento/app/data/constant/app_typography.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-
+import '../../../controller/home_controller.dart';
+import '../../../data/constant/app_colors.dart';
 import '../../../data/enums/shape_enum.dart';
-import '../../../model/gridItem_model.dart';
+
+import 'custom_shapes_tile.dart';
 
 class WidgetCreationTile extends StatefulWidget {
   const WidgetCreationTile({super.key});
@@ -22,10 +22,11 @@ class WidgetCreationTileState extends State<WidgetCreationTile>
     with SingleTickerProviderStateMixin {
   bool _showLinkInput = false;
   final FocusNode _focusNode = FocusNode();
-  late final HomeController hc; // Declare HomeController here
+  late final HomeController hc;
 
   late final AnimationController _animationController;
   late final Animation<Offset> _slideAnimation;
+  String _selectedImagePath = '';
 
   @override
   void initState() {
@@ -39,8 +40,8 @@ class WidgetCreationTileState extends State<WidgetCreationTile>
     );
 
     _slideAnimation = Tween<Offset>(
-      begin: const Offset(.0, -0.3),
-      end: Offset.zero, // End at its normal position
+      begin: const Offset(0, -0.3),
+      end: Offset.zero,
     ).animate(CurvedAnimation(
       parent: _animationController,
       curve: Curves.easeInOut,
@@ -67,8 +68,6 @@ class WidgetCreationTileState extends State<WidgetCreationTile>
     });
   }
 
-  String _selectedImagePath = '';
-
   Future<void> _pickImage(ImageSource source) async {
     final pickedFile = await ImagePicker().pickImage(source: source);
     if (pickedFile != null) {
@@ -77,7 +76,7 @@ class WidgetCreationTileState extends State<WidgetCreationTile>
       });
       hc.addItem(type: ItemType.image, content: _selectedImagePath);
     } else {
-      log('Image not Sellected');
+      log('Image not Selected');
     }
   }
 
@@ -96,17 +95,18 @@ class WidgetCreationTileState extends State<WidgetCreationTile>
   @override
   Widget build(BuildContext context) {
     bool isMobile = Get.width < 1300;
-    final List<IconData> icons = [
-      Icons.link,
-      CupertinoIcons.photo,
-      Icons.format_quote,
-      CupertinoIcons.selection_pin_in_out
-    ];
 
-    return Obx(
-      () => hc.selectedItemId.value != '' && isMobile
+    return Obx(() {
+      final selectedItem = hc.selectedItemId.value.isNotEmpty
+          ? hc.getItem(hc.selectedItemId.value)
+          : null;
+
+      final isSectionTileShape =
+          selectedItem?.shape != ShapeType.sectionTileShape;
+
+      return selectedItem != null && isMobile && isSectionTileShape
           ? SizedBox(
-              width: Get.width * .65,
+              width: Get.width * 0.65,
               child: CustomShapeButton(
                 onShapeSelected: (ShapeType shape) {
                   hc.updateItemShape(hc.selectedItemId.value, shape);
@@ -120,14 +120,17 @@ class WidgetCreationTileState extends State<WidgetCreationTile>
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  SlideTransition(
-                    position: _slideAnimation,
-                    child: AnimatedOpacity(
-                      opacity: _showLinkInput ? 1.0 : 0.0,
-                      duration: const Duration(milliseconds: 300),
-                      child: _showLinkInput
-                          ? LinkInputField(onHide: _toggleLinkInputVisibility)
-                          : const SizedBox.shrink(),
+                  Visibility(
+                    visible: _showLinkInput,
+                    child: SlideTransition(
+                      position: _slideAnimation,
+                      child: AnimatedOpacity(
+                        opacity: _showLinkInput ? 1.0 : 0.0,
+                        duration: const Duration(milliseconds: 300),
+                        child: _showLinkInput
+                            ? LinkInputField(onHide: _toggleLinkInputVisibility)
+                            : const SizedBox.shrink(),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 12.0),
@@ -138,76 +141,96 @@ class WidgetCreationTileState extends State<WidgetCreationTile>
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(12.0),
                       boxShadow: const [
-                        BoxShadow(
-                          color: Colors.black12,
-                          blurRadius: 8,
-                        ),
+                        BoxShadow(color: Colors.black12, blurRadius: 8)
                       ],
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const SizedBox(width: 8.0),
-                        ...List.generate(icons.length, (index) {
-                          return Padding(
-                            padding: const EdgeInsets.only(right: 8.0),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: AppColors.kWhite.withOpacity(.7),
-                                borderRadius: BorderRadius.circular(8.0),
-                                border: Border.all(
-                                    color: AppColors.kgrey.withOpacity(.25)),
-                              ),
-                              child: IconButton(
-                                icon:
-                                    Icon(icons[index], color: Colors.grey[800]),
-                                onPressed: () {
-                                  if (index == 0) {
-                                    _toggleLinkInputVisibility();
-                                  } else if (index == 1) {
-                                    _onPhotoIconPressed(); // Call method to pick image
-                                  } else if (index == 2) {
-                                    // Handle text item creation
-                                    hc.addItem(
-                                        type: ItemType.text, content: '');
-                                  } else if (index == 3) {
-                                    // Handle quote item creation or other functionality
-                                    hc.addItem(
-                                        type: ItemType.sectionTile,
-                                        content: 'section tile');
-                                  }
-                                },
-                              ),
-                            ),
-                          );
-                        }),
-                        const SizedBox(width: 12.0),
-                        Container(
-                          width: 1,
-                          height: 24,
-                          color: Colors.grey[400],
-                        ),
-                        const SizedBox(width: 12.0),
-                        Container(
-                          padding: const EdgeInsets.all(8.0),
-                          decoration: BoxDecoration(
-                            color: Colors.black,
-                            borderRadius: BorderRadius.circular(8.0),
-                          ),
-                          child: const Icon(Icons.laptop, color: Colors.white),
-                        ),
-                        const SizedBox(width: 8.0),
-                        IconButton(
-                          icon: Icon(Icons.phone_android,
-                              color: Colors.grey[800]),
-                          onPressed: () {},
-                        ),
+                        _buildIcons(),
+                        if (!isMobile) const SizedBox(width: 12.0),
+                        if (!isMobile) _divider(),
+                        if (!isMobile) _buildDeviceIcons(),
                       ],
                     ),
                   ),
                 ],
               ),
-            ),
+            );
+    });
+  }
+
+  Widget _buildIcons() {
+    final List<IconData> icons = [
+      Icons.link,
+      CupertinoIcons.photo,
+      Icons.format_quote,
+      CupertinoIcons.selection_pin_in_out,
+    ];
+
+    return Row(
+      children: List.generate(icons.length, (index) {
+        return Padding(
+          padding: const EdgeInsets.only(right: 8.0),
+          child: _buildIconButton(icons[index], index),
+        );
+      }),
+    );
+  }
+
+  Widget _buildIconButton(IconData icon, int index) {
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.kWhite.withOpacity(.7),
+        borderRadius: BorderRadius.circular(8.0),
+        border: Border.all(color: AppColors.kgrey.withOpacity(.25)),
+      ),
+      child: IconButton(
+        icon: Icon(icon, color: Colors.grey[800]),
+        onPressed: () {
+          if (index == 0) {
+            _toggleLinkInputVisibility();
+          } else if (index == 1) {
+            _onPhotoIconPressed();
+          } else if (index == 2) {
+            hc.addItem(type: ItemType.text, content: '');
+          } else if (index == 3) {
+            hc.addItem(type: ItemType.sectionTile, content: 'section tile');
+          }
+        },
+      ),
+    );
+  }
+
+  Widget _divider() {
+    return Container(
+      width: 1,
+      height: 24,
+      color: Colors.grey[400],
+    );
+  }
+
+  Widget _buildDeviceIcons() {
+    return Row(
+      children: [
+        Container(
+          //   padding: const EdgeInsets.all(8.0),
+          decoration: BoxDecoration(
+            color: Colors.black,
+            borderRadius: BorderRadius.circular(8.0),
+          ),
+          child: IconButton(
+              onPressed: () => Get.find<HoverController>()
+                  .setInitialView(DeviceView.desktop),
+              icon: const Icon(Icons.laptop, color: Colors.white)),
+        ),
+        const SizedBox(width: 8.0),
+        IconButton(
+          icon: Icon(Icons.phone_android, color: Colors.grey[800]),
+          onPressed: () =>
+              Get.find<HoverController>().setInitialView(DeviceView.mobile),
+        ),
+      ],
     );
   }
 }

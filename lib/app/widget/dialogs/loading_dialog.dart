@@ -25,7 +25,6 @@ class LoadingDialog extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 CircularProgressIndicator.adaptive(
-                  backgroundColor: Colors.white,
                   valueColor:
                       AlwaysStoppedAnimation(Theme.of(context).primaryColor),
                 ),

@@ -94,69 +94,70 @@ class WidgetCreationTileState extends State<WidgetCreationTile>
 
   @override
   Widget build(BuildContext context) {
-    bool isMobile = Get.width < 1300;
+    return LayoutBuilder(builder: (context, _) {
+      bool isMobile = Get.width < 1300;
+      return Obx(() {
+        final selectedItem = hc.selectedItemId.value.isNotEmpty
+            ? hc.getItem(hc.selectedItemId.value)
+            : null;
 
-    return Obx(() {
-      final selectedItem = hc.selectedItemId.value.isNotEmpty
-          ? hc.getItem(hc.selectedItemId.value)
-          : null;
+        final isSectionTileShape =
+            selectedItem?.shape != ShapeType.sectionTileShape;
 
-      final isSectionTileShape =
-          selectedItem?.shape != ShapeType.sectionTileShape;
-
-      return selectedItem != null && isMobile && isSectionTileShape
-          ? SizedBox(
-              width: Get.width * 0.65,
-              child: CustomShapeButton(
-                onShapeSelected: (ShapeType shape) {
-                  hc.updateItemShape(hc.selectedItemId.value, shape);
+        return selectedItem != null && isMobile && isSectionTileShape
+            ? SizedBox(
+                width: Get.width * 0.65,
+                child: CustomShapeButton(
+                  onShapeSelected: (ShapeType shape) {
+                    hc.updateItemShape(hc.selectedItemId.value, shape);
+                  },
+                ),
+              )
+            : GestureDetector(
+                onTap: () {
+                  if (_showLinkInput) _toggleLinkInputVisibility();
                 },
-              ),
-            )
-          : GestureDetector(
-              onTap: () {
-                if (_showLinkInput) _toggleLinkInputVisibility();
-              },
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Visibility(
-                    visible: _showLinkInput,
-                    child: SlideTransition(
-                      position: _slideAnimation,
-                      child: AnimatedOpacity(
-                        opacity: _showLinkInput ? 1.0 : 0.0,
-                        duration: const Duration(milliseconds: 300),
-                        child: _showLinkInput
-                            ? LinkInputField(onHide: _toggleLinkInputVisibility)
-                            : const SizedBox.shrink(),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Visibility(
+                      visible: _showLinkInput,
+                      child: SlideTransition(
+                        position: _slideAnimation,
+                        child: AnimatedOpacity(
+                          opacity: _showLinkInput ? 1.0 : 0.0,
+                          duration: const Duration(milliseconds: 300),
+                          child: _showLinkInput
+                              ? LinkInputField(
+                                  onHide: _toggleLinkInputVisibility)
+                              : const SizedBox.shrink(),
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 12.0),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 15.0, vertical: 8.0),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12.0),
-                      boxShadow: const [
-                        BoxShadow(color: Colors.black12, blurRadius: 8)
-                      ],
+                    const SizedBox(height: 12.0),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 15.0, vertical: 8.0),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12.0),
+                        boxShadow: const [
+                          BoxShadow(color: Colors.black12, blurRadius: 8)
+                        ],
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _buildIcons(),
+                          if (!isMobile) const SizedBox(width: 12.0),
+                          if (!isMobile) _buildDeviceIcons(),
+                        ],
+                      ),
                     ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        _buildIcons(),
-                        if (!isMobile) const SizedBox(width: 12.0),
-                        if (!isMobile) _divider(),
-                        if (!isMobile) _buildDeviceIcons(),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            );
+                  ],
+                ),
+              );
+      });
     });
   }
 
@@ -195,40 +196,48 @@ class WidgetCreationTileState extends State<WidgetCreationTile>
           } else if (index == 2) {
             hc.addItem(type: ItemType.text, content: '');
           } else if (index == 3) {
-            hc.addItem(type: ItemType.sectionTile, content: 'section tile');
+            hc.addItem(type: ItemType.sectionTile, content: '');
           }
         },
       ),
     );
   }
 
-  Widget _divider() {
-    return Container(
-      width: 1,
-      height: 24,
-      color: Colors.grey[400],
-    );
-  }
-
   Widget _buildDeviceIcons() {
+    var initialView = Get.find<HoverController>().initialView.value;
     return Row(
       children: [
         Container(
-          //   padding: const EdgeInsets.all(8.0),
           decoration: BoxDecoration(
-            color: Colors.black,
+            color: initialView == DeviceView.desktop
+                ? Colors.black
+                : Colors.transparent,
             borderRadius: BorderRadius.circular(8.0),
           ),
           child: IconButton(
               onPressed: () => Get.find<HoverController>()
                   .setInitialView(DeviceView.desktop),
-              icon: const Icon(Icons.laptop, color: Colors.white)),
+              icon: Icon(Icons.laptop,
+                  color: initialView == DeviceView.desktop
+                      ? Colors.white
+                      : Colors.black)),
         ),
         const SizedBox(width: 8.0),
-        IconButton(
-          icon: Icon(Icons.phone_android, color: Colors.grey[800]),
-          onPressed: () =>
-              Get.find<HoverController>().setInitialView(DeviceView.mobile),
+        Container(
+          decoration: BoxDecoration(
+            color: initialView == DeviceView.mobile
+                ? Colors.black
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(8.0),
+          ),
+          child: IconButton(
+            icon: Icon(Icons.phone_android,
+                color: initialView == DeviceView.mobile
+                    ? Colors.white
+                    : Colors.black),
+            onPressed: () =>
+                Get.find<HoverController>().setInitialView(DeviceView.mobile),
+          ),
         ),
       ],
     );

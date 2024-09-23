@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:bento/app/controller/home_controller.dart';
 import 'package:bento/app/model/gridItem_model.dart';
 import 'package:bento/app/modules/home/component/hover_widget.dart';
@@ -35,6 +33,7 @@ class _GridSectionWidgetState extends State<GridSectionWidget> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              
               SizedBox(
                 width: widget.isMobile ? 550 : null,
                 child:

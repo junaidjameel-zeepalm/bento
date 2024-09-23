@@ -4,6 +4,7 @@ import 'package:bento/app/controller/auth_controller.dart';
 import 'package:bento/app/data/enums/shape_enum.dart';
 import 'package:bento/app/model/gridItem_model.dart';
 import 'package:bento/app/repo/widget_repo.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -47,6 +48,7 @@ class HomeController extends GetxController {
               TextEditingController(text: item.sectionTile);
           sectionTextControllers[item.id]!.addListener(() {
             _onSectionTextChanged(item.id);
+            log('Section text controller initialized for item ${item.id} with text: ${item.sectionTile}');
           });
         }
       }
@@ -54,6 +56,70 @@ class HomeController extends GetxController {
       log('Widgets fetched successfully!');
     } catch (e) {
       log('Failed to fetch widgets: $e');
+    }
+  }
+
+  void addItem({required ItemType type, required String content}) async {
+    String newItemId = 'Item ${items.length}';
+    String? imagePath;
+
+    // Handle image upload if necessary
+    if (type == ItemType.image && content.isNotEmpty) {
+      try {
+        if (kIsWeb) {
+          Uint8List? fileBytes = await _widgetRepo.fetchBytesFromUrl(content);
+          if (fileBytes != null) {
+            imagePath = await _widgetRepo.uploadToStorageFromBytes(
+              fileBytes: fileBytes,
+              folderName: 'user_images/$currentUid/$newItemId',
+            );
+          }
+        }
+      } catch (e) {
+        log('Failed to upload image: $e');
+      }
+    }
+
+    // Initialize the new text controller or section text controller
+    if (type == ItemType.text) {
+      textControllers[newItemId] = TextEditingController(text: content);
+      textControllers[newItemId]!.addListener(() {
+        _onTextChanged(newItemId);
+      });
+    }
+
+    if (type == ItemType.sectionTile) {
+      sectionTextControllers[newItemId] = TextEditingController(text: content);
+      sectionTextControllers[newItemId]!.addListener(() {
+        _onSectionTextChanged(newItemId);
+      });
+    }
+
+    // Create the new grid item
+    GridItem newItem = GridItem(
+      id: newItemId,
+      shape: type == ItemType.sectionTile
+          ? ShapeType.sectionTileShape
+          : ShapeType.square,
+      type: type,
+      link: type == ItemType.link ? content : null,
+      imagePath: type == ItemType.image ? imagePath : null,
+      text: type == ItemType.text ? content : null,
+      sectionTile: type == ItemType.sectionTile ? content : null,
+      position: items.length,
+    );
+
+    // Insert the new item into the grid
+    items.insert(items.length, newItem);
+
+    // Update the UI
+    update();
+
+    try {
+      await _widgetRepo.addWidget(currentUid, newItem);
+      log('Item added to Firestore successfully!');
+    } catch (e) {
+      log('Failed to add item to Firestore: $e');
     }
   }
 
@@ -90,6 +156,7 @@ class HomeController extends GetxController {
   // Updates the section text in Firestore
   void _updateSectionTextInFirestore(String itemId, String newText) async {
     if (newText.isNotEmpty) {
+      log('Updating section text in Firestore for item $itemId with text: $newText');
       try {
         updateItemSectionText(itemId, newText);
         await _widgetRepo.updateSectionText(currentUid, itemId, newText);
@@ -135,30 +202,6 @@ class HomeController extends GetxController {
   }
 
   // Adds a new item to the grid and Firestore
-  void addItem({ItemType type = ItemType.link, String content = ''}) async {
-    String newItemId = 'Item ${items.length}';
-    GridItem newItem = GridItem(
-      id: newItemId,
-      shape: type == ItemType.sectionTile
-          ? ShapeType.sectionTileShape
-          : ShapeType.square,
-      type: type,
-      link: type == ItemType.link ? content : null,
-      imagePath: type == ItemType.image ? content : null,
-      text: type == ItemType.text ? content : null,
-      sectionTile: type == ItemType.sectionTile ? content : null,
-      position: items.length,
-    );
-
-    items.add(newItem);
-
-    try {
-      await _widgetRepo.addWidget(currentUid, newItem);
-      log('Item added to Firestore successfully!');
-    } catch (e) {
-      log('Failed to add item to Firestore: $e');
-    }
-  }
 
   // Deletes an item from the grid and Firestore
   Future<void> deleteItem(String itemId) async {
@@ -195,6 +238,13 @@ class HomeController extends GetxController {
     }
   }
 
+  void updateImage(String itemId, String imagePath) {
+    int index = items.indexWhere((item) => item.id == itemId);
+    if (index != -1) {
+      items[index] = items[index].copyWith(imagePath: imagePath);
+    }
+  }
+
   // Updates the section text locally
   void updateItemSectionText(String itemId, String text) {
     int index = items.indexWhere((item) => item.id == itemId);
@@ -203,7 +253,6 @@ class HomeController extends GetxController {
     }
   }
 
-  // Retrieves the shape of a specific item
   ShapeType getItemShape(String id) {
     return getItem(id).shape;
   }

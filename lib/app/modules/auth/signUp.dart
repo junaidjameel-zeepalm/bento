@@ -1,3 +1,8 @@
+import 'package:bento/app/data/constant/app_typography.dart';
+import 'package:bento/app/data/constant/data.dart';
+import 'package:bento/app/modules/auth/component/auth_txtField_wiget.dart';
+import 'package:bento/app/modules/auth/component/carousal_slider_widget.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
@@ -12,8 +17,7 @@ class SignUpView extends StatelessWidget {
   // Controllers for form fields
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController =
-      TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
   AuthController get ac => Get.find<AuthController>();
 
   // Form key for validation
@@ -23,12 +27,12 @@ class SignUpView extends StatelessWidget {
     if (_formKey.currentState?.validate() ?? false) {
       final email = _emailController.text;
       final password = _passwordController.text;
-      final confirmPassword = _confirmPasswordController.text;
+      final name = _nameController.text;
       await AuthRepo().signUp(
-          userName: 'testing user',
-          email: email,
-          password: password,
-          confirmPassword: confirmPassword);
+        userName: name,
+        email: email,
+        password: password,
+      );
     }
   }
 
@@ -37,195 +41,103 @@ class SignUpView extends StatelessWidget {
     final screenSize = MediaQuery.of(context).size;
 
     return Scaffold(
-      body: Center(
-        child: SingleChildScrollView(
-          child: Container(
-            width: screenSize.width > 600 ? 400 : screenSize.width * 0.9,
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(8),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  spreadRadius: 5,
-                  blurRadius: 7,
-                  offset: const Offset(0, 3),
+      body: LayoutBuilder(builder: (context, constraints) {
+        bool isMobile = constraints.maxWidth < 900;
+
+        return Row(
+          children: [
+            if (!isMobile) const Expanded(child: ImageCarousel()),
+            Expanded(child: _buildSignUpCard(screenSize, context)),
+          ],
+        );
+      }),
+    );
+  }
+
+  Center _buildSignUpCard(Size screenSize, BuildContext context) {
+    return Center(
+      child: SingleChildScrollView(
+        child: Container(
+          width: screenSize.width > 600 ? 400 : screenSize.width * 0.9,
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Create an account',
+                  style: GoogleFonts.kanit(
+                    color: Colors.black87,
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
+                const SizedBox(height: 20),
+
+                AuthTxtFieldWidget(
+                  controller: _nameController,
+                  labelText: 'Name',
+                ),
+                const SizedBox(height: 20),
+                //   _buildEmailField(),
+                AuthTxtFieldWidget(
+                  controller: _emailController,
+                  labelText: 'Email',
+                ),
+                const SizedBox(height: 16),
+                AuthTxtFieldWidget(
+                  controller: _passwordController,
+                  labelText: 'Password',
+                  obscureText: true,
+                ),
+                const SizedBox(height: 20),
+
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text("Already have an account?",
+                        style:
+                            TextStyle(color: Colors.grey[700], fontSize: 16)),
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: Text('Sign In',
+                          style: AppTypography.kSemiBold16
+                              .copyWith(color: AppColors.kBlack, fontSize: 17)),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: () => _signUp(context),
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: Colors.white,
+                    backgroundColor: Colors.red[400],
+                    minimumSize: const Size(double.infinity, 48),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 5,
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 15.0),
+                    child: Text('Sign Up', style: AppTypography.kSemiBold16),
+                  ),
+                ),
+                // const SizedBox(height: 16),
+                // _loginWithGoogleButton(
+                //   image: 'assets/google.png',
+                // ),
               ],
-            ),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    'Sign Up',
-                    style: GoogleFonts.kanit(
-                      color: Colors.black87,
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  _buildEmailField(),
-                  const SizedBox(height: 16),
-                  _buildPasswordField(),
-                  const SizedBox(height: 16),
-                  _buildConfirmPasswordField(),
-                  const SizedBox(height: 24),
-                  ElevatedButton(
-                    onPressed: () => _signUp(context),
-                    style: ElevatedButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      backgroundColor: Colors.red[400],
-                      minimumSize: const Size(double.infinity, 48),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      elevation: 5,
-                    ),
-                    child: const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 15.0),
-                      child: Text(
-                        'Sign Up',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                  ),
-                  // const SizedBox(height: 16),
-                  // _loginWithGoogleButton(
-                  //   image: 'assets/google.png',
-                  // ),
-                  const SizedBox(height: 16),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text("Already have an account?",
-                          style: TextStyle(color: Colors.grey[700])),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        child: const Text(
-                          'Sign In',
-                          style: TextStyle(
-                              color: Colors.black, fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
             ),
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildEmailField() {
-    return TextFormField(
-      style: const TextStyle(color: Colors.black),
-      controller: _emailController,
-      decoration: InputDecoration(
-        labelText: 'Email',
-        border: const OutlineInputBorder(
-          borderRadius: BorderRadius.all(Radius.circular(8)),
-        ),
-        prefixIcon: const Icon(
-          Icons.email,
-        ),
-        hoverColor: Colors.black,
-        focusedBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.blue[900]!),
-          borderRadius: const BorderRadius.all(Radius.circular(8)),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.grey[400]!),
-          borderRadius: const BorderRadius.all(Radius.circular(8)),
-        ),
-      ),
-      keyboardType: TextInputType.emailAddress,
-      validator: (value) {
-        if (value == null || value.isEmpty) {
-          return 'Please enter your email';
-        }
-        final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+');
-        if (!emailRegex.hasMatch(value)) {
-          return 'Please enter a valid email address';
-        }
-        return null;
-      },
-    );
-  }
-
-  Widget _buildPasswordField() {
-    return TextFormField(
-      style: const TextStyle(color: Colors.black),
-      controller: _passwordController,
-      decoration: InputDecoration(
-        labelText: 'Password',
-        border: const OutlineInputBorder(
-          borderRadius: BorderRadius.all(Radius.circular(8)),
-        ),
-        prefixIcon: const Icon(Icons.lock),
-        hoverColor: Colors.black,
-        focusedBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.blue[900]!),
-          borderRadius: const BorderRadius.all(Radius.circular(8)),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.grey[400]!),
-          borderRadius: const BorderRadius.all(Radius.circular(8)),
-        ),
-      ),
-      obscureText: true,
-      validator: (value) {
-        if (value == null || value.isEmpty) {
-          return 'Please enter your password';
-        }
-        if (value.length < 6) {
-          return 'Password must be at least 6 characters';
-        }
-        return null;
-      },
-    );
-  }
-
-  Widget _buildConfirmPasswordField() {
-    return TextFormField(
-      style: const TextStyle(color: Colors.black),
-      controller: _confirmPasswordController,
-      decoration: InputDecoration(
-        labelText: 'Confirm Password',
-        border: const OutlineInputBorder(
-          borderRadius: BorderRadius.all(Radius.circular(8)),
-        ),
-        prefixIcon: const Icon(Icons.lock),
-        hoverColor: Colors.black,
-        focusedBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.blue[900]!),
-          borderRadius: const BorderRadius.all(Radius.circular(8)),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.grey[400]!),
-          borderRadius: const BorderRadius.all(Radius.circular(8)),
-        ),
-      ),
-      obscureText: true,
-      validator: (value) {
-        if (value == null || value.isEmpty) {
-          return 'Please confirm your password';
-        }
-        if (value != _passwordController.text) {
-          return 'Passwords do not match';
-        }
-        return null;
-      },
     );
   }
 

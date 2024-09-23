@@ -1,6 +1,10 @@
+import 'dart:async';
+
 import 'package:bento/app/controller/auth_controller.dart';
+import 'package:bento/app/repo/auth_repo.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../model/user_model.dart';
@@ -47,6 +51,9 @@ class UserController extends GetxController {
     ever(_currentUser, (user) {
       if (user != null) {
         AppUtils.putAllControllers();
+        bioController.text = user.bio ?? '';
+
+        bioController.addListener(() => onBioTextChanged());
       }
     });
     super.onInit();
@@ -55,6 +62,33 @@ class UserController extends GetxController {
   @override
   void onClose() {
     _currentUser.close();
+    bioController.dispose();
     super.onClose();
+  }
+
+  Timer? _debounce;
+  final bioController = TextEditingController();
+
+  void onBioTextChanged() {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(milliseconds: 5000), () {
+      // Use Get.focusScope to unfocus the text field
+      Get.focusScope?.unfocus();
+
+      // Check if the bio has changed
+      if (bioController.text != user?.bio) {
+        AuthRepo().updateBioInFs(bioController.text);
+      }
+    });
+  }
+
+  Future<void> updateUserNameAndProfilePicture({required String? image}) async {
+    callFutureFunctionWithLoadingOverlay(asyncFunction: () async {
+      final uid = user!.uid ?? FirebaseAuth.instance.currentUser!.uid;
+
+      user!.photoUrl = image;
+
+      await db.userCollection.doc(uid).set(user!, SetOptions(merge: true));
+    });
   }
 }

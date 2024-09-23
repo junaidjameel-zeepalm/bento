@@ -63,6 +63,12 @@ dependencies:
   any_link_preview: ^3.0.2
   html: ^0.15.4
   http: ^1.2.2
+  image_picker_web: ^4.0.0
+  flutter_svg: ^2.0.10+1
+  carousel_slider: ^5.0.0
+  flutter_link_previewer: ^3.2.2
+  fluttertoast: ^8.2.8
+  file_picker: ^8.1.2
 
 dev_dependencies:
   flutter_test:
@@ -90,6 +96,7 @@ flutter:
   assets:
     - assets/
     - assets/images/
+    - assets/lottie/
     
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg

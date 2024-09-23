@@ -1,3 +1,4 @@
+import 'package:bento/app/controller/home_controller.dart';
 import 'package:bento/app/modules/auth/login.dart';
 import 'package:bento/app/modules/home/home.dart';
 import 'package:flutter/material.dart';
@@ -24,28 +25,6 @@ class AuthWrapper extends StatelessWidget {
         }
 
         return const BentoHomePage();
-        // CustomBottomNavBar();
-
-        // return CustomBottomBar();
-        // // Scaffold(
-        // //     body: Center(
-        // //         child: SizedBox(
-        // //   width: 200,
-        // //   height: 200,
-        // //   child: Column(
-        // //     children: [
-        // //       Text('Welcome ${uc.user!.name}'),
-        // //       Text("App Keys ${AppKeys.spoonacularApiKey}"),
-        // //       ElevatedButton(
-        // //         onPressed: () {
-        // //           AuthService().signOut();
-        // //         },
-        // //         child: const Text('Sign Out'),
-        // //       ),
-        // //     ],
-        // //   ),
-        // )));
-        // const LandingPage();
       }
     });
   }

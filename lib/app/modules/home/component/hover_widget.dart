@@ -1,13 +1,13 @@
 import 'dart:developer';
 
 import 'package:bento/app/controller/home_controller.dart';
-import 'package:bento/app/controller/link_controller.dart';
-import 'package:bento/app/data/constant/app_colors.dart';
 import 'package:bento/app/data/constant/data.dart';
 import 'package:bento/app/data/constant/style.dart';
 import 'package:bento/app/modules/home/link.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../data/enums/shape_enum.dart';
@@ -32,14 +32,8 @@ class _OnHoverButtonState extends State<OnHoverButton> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _focusNode.addListener(() {
-        // if (!_focusNode.hasFocus) {
-        //   _hc.selectedItemId.value = '';
-        // }
-      });
-      //  _focusNode.requestFocus();
-    });
+    WidgetsBinding.instance
+        .addPostFrameCallback((_) => _focusNode.addListener(() {}));
   }
 
   @override
@@ -260,7 +254,6 @@ class _OnHoverButtonState extends State<OnHoverButton> {
     String completeLink;
 
     if (link != null && link.isNotEmpty) {
-      // Check if the input already starts with "http", "www" or contains ".com"
       if (link.startsWith('http') ||
           link.startsWith('www') ||
           link.contains('.com')) {
@@ -282,8 +275,8 @@ class _OnHoverButtonState extends State<OnHoverButton> {
         ? Center(
             child: ClipRRect(
               borderRadius: BorderRadius.circular(16),
-              child: Image.network(
-                imagePath,
+              child: CachedNetworkImage(
+                imageUrl: imagePath,
                 width: containerSize.width,
                 height: containerSize.height,
                 fit: BoxFit.cover,
@@ -295,29 +288,30 @@ class _OnHoverButtonState extends State<OnHoverButton> {
 
   Widget _buildSectionTileWidget(isHovered, Size containerSize, bool isMobile) {
     return Container(
-        //  width: containerSize.width,
-        padding: const EdgeInsets.symmetric(horizontal: 10),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
+        padding: const EdgeInsets.symmetric(
+          horizontal: 10,
         ),
-        child: Container(
-            margin: const EdgeInsets.symmetric(vertical: 10),
-            height: containerSize.height,
-            decoration: BoxDecoration(
-              color: AppColors.kgrey,
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: TextField(
-              controller: _hc.getTextController(widget.itemId),
-              maxLines: 3,
-              decoration: InputDecoration(
-                  hintText: 'Section Tile',
-                  border: InputBorder.none,
-                  hintStyle: AppTypography.kRegular16
-                      .copyWith(fontWeight: FontWeight.w600),
-                  contentPadding:
-                      const EdgeInsets.symmetric(vertical: 12, horizontal: 10)),
-            )));
+        margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+        height: containerSize.height,
+        decoration: BoxDecoration(
+          color: AppColors.kgrey,
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: TextField(
+          style: AppTypography.kRegular14,
+          controller: _hc.getSectionTextController(widget.itemId),
+          maxLines: 3,
+          onChanged: (newValue) {
+            _hc.updateItemSectionText(widget.itemId, newValue);
+          },
+          decoration: InputDecoration(
+              hintText: 'Section Tile',
+              border: InputBorder.none,
+              hintStyle: AppTypography.kSemiBold16
+                  .copyWith(fontWeight: FontWeight.w600),
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 10, vertical: 10)),
+        ));
   }
 
   Widget _buildTextWidget(isHovered, Size containerSize, bool isMobile) {

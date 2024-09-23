@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'dart:math' as math;
 
 import 'package:bento/app/controller/home_controller.dart';
+import 'package:bento/app/controller/hover_controller.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -28,12 +29,14 @@ class AppUtils {
 
   static putAllControllers() {
     Get.put(HomeController(), permanent: true);
+    Get.put(HoverController(), permanent: true);
     // Get.put(ProjectController(), permanent: true);
     // Get.put(MessageController(), permanent: true);
   }
 
   static removeAllControllers() {
-    Get.delete<HomeController>(force: true);
+    Get.delete<HoverController>(force: true);
+
     // Get.delete<ProjectController>(force: true);
     // Get.delete<MessageController>(force: true);
   }
@@ -87,7 +90,9 @@ Future<T?> callFutureFunctionWithLoadingOverlay<T>({
           showErrorDialog(e.toString());
         }
       },
-      // loadingWidget: const LoadingDialog(),
+      loadingWidget: const LoadingDialog(
+        message: 'Please wait...',
+      ),
     );
     return result;
   }

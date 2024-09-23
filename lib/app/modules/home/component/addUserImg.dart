@@ -1,12 +1,6 @@
-import 'dart:developer';
-
 import 'package:bento/app/controller/user_controller.dart';
 import 'package:bento/app/data/constant/data.dart';
-import 'package:bento/app/services/db.dart';
 import 'package:bento/app/services/image_picker.dart';
-import 'package:bento/app/utils/app_utils/app_utils.dart';
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -23,8 +17,8 @@ class AddImageWidget extends StatefulWidget {
 }
 
 class _AddImageWidgetState extends State<AddImageWidget> {
-  String? image;
   Uint8List? pickedProfileImageBytes;
+  String? pickedProfileImage;
 
   UserController get uc => Get.find<UserController>();
 
@@ -44,33 +38,24 @@ class _AddImageWidgetState extends State<AddImageWidget> {
               child: Stack(
                 alignment: Alignment.centerLeft,
                 children: [
-                  image == null
-                      ? controller.user!.photoUrl != null
-                          ? Container(
-                              height: 140,
-                              width: 140,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                //  border: Border.all(color: kGreen),
-                                image: DecorationImage(
-                                    image: CachedNetworkImageProvider(
-                                        controller.user!.photoUrl!),
-                                    fit: BoxFit.cover),
-                              ),
+                  Container(
+                    height: 140,
+                    width: 140,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      image: pickedProfileImageBytes != null
+                          ? DecorationImage(
+                              image: MemoryImage(pickedProfileImageBytes!),
+                              fit: BoxFit.cover,
                             )
-                          : CircleAvatar(
-                              child: Center(
-                                child: Icon(
-                                  Icons.person,
-                                  color: AppColors.kBlack,
-                                  size: 50,
-                                ),
-                              ),
-                            )
-                      : CircleAvatar(
-                          radius: isMobile ? 70 : 80,
-                          backgroundImage: CachedNetworkImageProvider(image!),
-                        ),
+                          : uc.user!.photoUrl != ''
+                              ? DecorationImage(
+                                  image: NetworkImage(uc.user!.photoUrl!),
+                                  fit: BoxFit.cover,
+                                )
+                              : null,
+                    ),
+                  ),
                   Align(
                     alignment: Alignment.bottomRight,
                     child: Padding(
@@ -86,23 +71,22 @@ class _AddImageWidgetState extends State<AddImageWidget> {
                               Uint8List fileBytes = result.files.first.bytes!;
                               setState(() {
                                 pickedProfileImageBytes = fileBytes;
-                                image = result.files.first.name;
+                                pickedProfileImage = result.files.first.name;
                               });
 
-                              // if (pickedProfileImageBytes != null) {
-                              //   image = await FirebaseStorageServices
-                              //       .uploadToStorageFromBytes(
-                              //           fileBytes: pickedProfileImageBytes!,
-                              //           folderName: 'ProfileImages');
-                              //   Get.find<UserController>()
-                              //       .updateUserNameAndProfilePicture(
-                              //           image: image);
-                              // }
-
-                              //                     await db.userCollection.doc(uc.user!.uid).set(
-                              //   uc.user!,
-                              //   SetOptions(merge: true),
-                              // );
+                              if (pickedProfileImageBytes != null) {
+                                pickedProfileImage =
+                                    await FirebaseStorageServices
+                                        .uploadToStorageFromBytes(
+                                            fileBytes: pickedProfileImageBytes!,
+                                            folderName: 'ProfileImages');
+                                await Get.find<UserController>()
+                                    .updateUserNameAndProfilePicture(
+                                        image: pickedProfileImage);
+                              }
+                              setState(() {
+                                pickedProfileImageBytes = null;
+                              });
                             }
                           },
                           child: const Icon(

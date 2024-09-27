@@ -496,6 +496,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.2.1"
+  hex:
+    dependency: transitive
+    description:
+      name: hex
+      sha256: "4e7cd54e4b59ba026432a6be2dd9d96e4c5205725194997193bf871703b82c4a"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.2.0"
   html:
     dependency: "direct main"
     description:
@@ -784,6 +792,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.8"
+  quiver:
+    dependency: transitive
+    description:
+      name: quiver
+      sha256: ea0b925899e64ecdfbf9c7becb60d5b50e706ade44a85b2363be2a22d88117d2
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.2.2"
   rename:
     dependency: "direct main"
     description:
@@ -800,6 +816,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.6.0"
+  requests_plus:
+    dependency: "direct main"
+    description:
+      name: requests_plus
+      sha256: b1d6e2c4fbe47643c46d3d27a773dbe9c1592464a8b7ed4d4ea20a3b1ea1bd3c
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.8.6"
   responsive_framework:
     dependency: "direct main"
     description:

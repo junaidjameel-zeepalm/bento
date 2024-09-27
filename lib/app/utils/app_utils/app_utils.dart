@@ -91,7 +91,7 @@ Future<T?> callFutureFunctionWithLoadingOverlay<T>({
         }
       },
       loadingWidget: const LoadingDialog(
-        message: 'Please wait...',
+        message: '',
       ),
     );
     return result;

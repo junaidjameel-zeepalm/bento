@@ -84,13 +84,13 @@ class AuthRepo {
       required String password,
       required String userName}) async {
     try {
-      showLoadingDialog(message: 'Signing In');
-      await _auth.signInWithEmailAndPassword(
-        email: email,
-        password: password,
+      callFutureFunctionWithLoadingOverlay(
+        asyncFunction: () async {
+          await _auth.signInWithEmailAndPassword(
+              email: email, password: password);
+          Get.back();
+        },
       );
-
-      hideLoadingDialog();
       Get.offAll(AuthWrapper());
     } on FirebaseAuthException catch (e) {
       hideLoadingDialog();

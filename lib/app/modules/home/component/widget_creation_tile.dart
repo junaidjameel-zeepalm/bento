@@ -8,7 +8,6 @@ import 'package:image_picker/image_picker.dart';
 import '../../../controller/home_controller.dart';
 import '../../../data/constant/app_colors.dart';
 import '../../../data/enums/shape_enum.dart';
-
 import 'custom_shapes_tile.dart';
 
 class WidgetCreationTile extends StatefulWidget {
@@ -20,10 +19,9 @@ class WidgetCreationTile extends StatefulWidget {
 
 class WidgetCreationTileState extends State<WidgetCreationTile>
     with SingleTickerProviderStateMixin {
-  bool _showLinkInput = false;
   final FocusNode _focusNode = FocusNode();
   late final HomeController hc;
-
+  late final HoverController hoverController;
   late final AnimationController _animationController;
   late final Animation<Offset> _slideAnimation;
   String _selectedImagePath = '';
@@ -33,6 +31,7 @@ class WidgetCreationTileState extends State<WidgetCreationTile>
     super.initState();
 
     hc = Get.find<HomeController>();
+    hoverController = Get.find<HoverController>();
 
     _animationController = AnimationController(
       vsync: this,
@@ -51,21 +50,9 @@ class WidgetCreationTileState extends State<WidgetCreationTile>
   }
 
   void _handleFocusChange() {
-    if (!_focusNode.hasFocus && _showLinkInput) {
-      _toggleLinkInputVisibility();
+    if (!_focusNode.hasFocus && hoverController.showLinkInput.value) {
+      hoverController.toggleLinkInputVisibility();
     }
-  }
-
-  void _toggleLinkInputVisibility() {
-    setState(() {
-      _showLinkInput = !_showLinkInput;
-      if (_showLinkInput) {
-        _animationController.forward();
-        _focusNode.requestFocus();
-      } else {
-        _animationController.reverse();
-      }
-    });
   }
 
   Future<void> _pickImage(ImageSource source) async {
@@ -115,21 +102,25 @@ class WidgetCreationTileState extends State<WidgetCreationTile>
               )
             : GestureDetector(
                 onTap: () {
-                  if (_showLinkInput) _toggleLinkInputVisibility();
+                  if (hoverController.showLinkInput.value) {
+                    hoverController.toggleLinkInputVisibility();
+                  }
                 },
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Visibility(
-                      visible: _showLinkInput,
+                      visible: hoverController.showLinkInput.value,
                       child: SlideTransition(
                         position: _slideAnimation,
                         child: AnimatedOpacity(
-                          opacity: _showLinkInput ? 1.0 : 0.0,
+                          opacity:
+                              hoverController.showLinkInput.value ? 1.0 : 0.0,
                           duration: const Duration(milliseconds: 300),
-                          child: _showLinkInput
-                              ? LinkInputField(
-                                  onHide: _toggleLinkInputVisibility)
+                          child: hoverController.showLinkInput.value
+                              ? LinkInputField(onHide: () {
+                                  hoverController.toggleLinkInputVisibility();
+                                })
                               : const SizedBox.shrink(),
                         ),
                       ),
@@ -190,7 +181,7 @@ class WidgetCreationTileState extends State<WidgetCreationTile>
         icon: Icon(icon, color: Colors.grey[800]),
         onPressed: () {
           if (index == 0) {
-            _toggleLinkInputVisibility();
+            hoverController.toggleLinkInputVisibility();
           } else if (index == 1) {
             _onPhotoIconPressed();
           } else if (index == 2) {

@@ -2,7 +2,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:http/http.dart' as http;
+import 'package:requests_plus/requests_plus.dart';
 import 'package:html/parser.dart' as html_parser;
 
 class WebsitePreview extends StatefulWidget {
@@ -26,14 +26,24 @@ class WebsitePreviewState extends State<WebsitePreview> {
 
   Future<Map<String, String>> fetchWebsiteData(String url) async {
     try {
-      final response = await http.get(Uri.parse(url));
+      // Define headers if needed
+      final headers = {
+        'User-Agent':
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3',
+        'Accept':
+            'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Connection': 'keep-alive',
+        'Upgrade-Insecure-Requests': '1',
+      };
+
+      // Using the RequestsPlus package to send the request
+      final response = await RequestsPlus.get(url, headers: headers);
 
       if (response.statusCode == 200) {
         var document = html_parser.parse(response.body);
-
         // Extract title
         String title = document.querySelector('title')?.text ?? '';
-
         // Extract favicon
         String? faviconUrl;
         var faviconElement = document.querySelector(
@@ -47,17 +57,16 @@ class WebsitePreviewState extends State<WebsitePreview> {
                 '${uri.scheme}://${uri.host}${faviconUrl.startsWith('/') ? '' : '/'}$faviconUrl';
           }
         }
-
         log('Fetched Title: $title');
         log('Fetched Favicon URL: $faviconUrl');
-
         return {'title': title, 'faviconUrl': faviconUrl ?? ''};
       } else {
-        throw Exception('Failed to load website data');
+        log('Failed to load website data with status code: ${response.statusCode}');
+        return {'title': 'Unable to fetch', 'faviconUrl': ''};
       }
     } catch (e) {
-      log('Error: $e');
-      throw Exception('Error: $e');
+      log('Error fetching website data: $e');
+      return {'title': 'Error fetching data', 'faviconUrl': ''};
     }
   }
 

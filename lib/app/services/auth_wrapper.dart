@@ -1,6 +1,7 @@
 import 'package:bento/app/controller/home_controller.dart';
 import 'package:bento/app/modules/auth/login.dart';
 import 'package:bento/app/modules/home/home.dart';
+import 'package:bento/app/widget/dialogs/loading_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -19,8 +20,12 @@ class AuthWrapper extends StatelessWidget {
         _registerUserController();
         final uc = Get.find<UserController>();
         if (uc.user == null) {
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
+          return Scaffold(
+            backgroundColor: Colors.black.withOpacity(.6),
+            body: const Center(
+                child: LoadingDialog(
+              message: '',
+            )),
           );
         }
 

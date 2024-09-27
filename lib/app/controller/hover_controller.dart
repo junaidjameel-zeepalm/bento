@@ -12,6 +12,12 @@ class HoverController extends GetxController {
   void setInitialView(DeviceView view) {
     initialView.value = view;
   }
+
+  var showLinkInput = false.obs;
+
+  void toggleLinkInputVisibility() {
+    showLinkInput.value = !showLinkInput.value;
+  }
 }
 
 enum DeviceView { mobile, desktop }

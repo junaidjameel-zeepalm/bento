@@ -279,7 +279,7 @@ class _OnHoverButtonState extends State<OnHoverButton> {
                 imageUrl: imagePath,
                 width: containerSize.width,
                 height: containerSize.height,
-                fit: BoxFit.cover,
+                fit: BoxFit.fill,
               ),
             ),
           )
@@ -291,7 +291,7 @@ class _OnHoverButtonState extends State<OnHoverButton> {
         padding: const EdgeInsets.symmetric(
           horizontal: 10,
         ),
-        margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+        margin: const EdgeInsets.all(12),
         height: containerSize.height,
         decoration: BoxDecoration(
           color: AppColors.kgrey,
@@ -317,7 +317,7 @@ class _OnHoverButtonState extends State<OnHoverButton> {
   Widget _buildTextWidget(isHovered, Size containerSize, bool isMobile) {
     return Center(
       child: Container(
-        margin: const EdgeInsets.all(12),
+        margin: const EdgeInsets.all(17),
         height: containerSize.height,
         padding: const EdgeInsets.symmetric(horizontal: 10),
         decoration: BoxDecoration(

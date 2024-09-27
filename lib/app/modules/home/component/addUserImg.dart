@@ -1,6 +1,7 @@
 import 'package:bento/app/controller/user_controller.dart';
 import 'package:bento/app/data/constant/data.dart';
 import 'package:bento/app/services/image_picker.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -48,12 +49,19 @@ class _AddImageWidgetState extends State<AddImageWidget> {
                               image: MemoryImage(pickedProfileImageBytes!),
                               fit: BoxFit.cover,
                             )
-                          : uc.user!.photoUrl != ''
+                          : (uc.user!.photoUrl != null &&
+                                  uc.user!.photoUrl!.isNotEmpty)
                               ? DecorationImage(
-                                  image: NetworkImage(uc.user!.photoUrl!),
+                                  image: CachedNetworkImageProvider(
+                                      uc.user!.photoUrl!),
                                   fit: BoxFit.cover,
                                 )
-                              : null,
+                              : const DecorationImage(
+                                  // Default placeholder image when no image is uploaded
+                                  image:
+                                      AssetImage('assets/images/noProfile.png'),
+                                  fit: BoxFit.fill,
+                                ),
                     ),
                   ),
                   Align(
@@ -66,7 +74,10 @@ class _AddImageWidgetState extends State<AddImageWidget> {
                         child: InkWell(
                           onTap: () async {
                             FilePickerResult? result =
-                                await FilePicker.platform.pickFiles();
+                                await FilePicker.platform.pickFiles(
+                              type: FileType.custom,
+                              allowedExtensions: ['jpg', 'jpeg', 'png'],
+                            );
                             if (result != null) {
                               Uint8List fileBytes = result.files.first.bytes!;
                               setState(() {

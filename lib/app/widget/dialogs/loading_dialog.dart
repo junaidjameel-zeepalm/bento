@@ -1,17 +1,39 @@
-import 'package:get/get.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
-class LoadingDialog extends StatelessWidget {
+class LoadingDialog extends StatefulWidget {
   const LoadingDialog({super.key, required this.message});
   final String message;
 
   @override
+  LoadingDialogState createState() => LoadingDialogState();
+}
+
+class LoadingDialogState extends State<LoadingDialog>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(seconds: 1),
+      vsync: this,
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return WillPopScope(
-      onWillPop: () async {
-        return false;
-      },
+      onWillPop: () async => false,
       child: AlertDialog(
+        backgroundColor: Colors.transparent, // Dark background for dialog
         elevation: 0,
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.all(
@@ -19,21 +41,46 @@ class LoadingDialog extends StatelessWidget {
           ),
         ),
         content: SizedBox(
-            width: 250,
-            height: 60,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                CircularProgressIndicator.adaptive(
-                  valueColor:
-                      AlwaysStoppedAnimation(Theme.of(context).primaryColor),
-                ),
-                const SizedBox(width: 20),
-                Text(
-                  message,
-                )
-              ],
-            )),
+          width: 250,
+          height: 80,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              AnimatedBuilder(
+                animation: _controller,
+                builder: (context, child) {
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      _buildDot(0),
+                      _buildDot(0.3),
+                      _buildDot(0.6),
+                    ],
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDot(double delay) {
+    return FadeTransition(
+      opacity: Tween(begin: 0.4, end: 2.0).animate(
+        CurvedAnimation(
+          parent: _controller,
+          curve: Interval(delay, 1.0, curve: Curves.easeInCirc),
+        ),
+      ),
+      child: const Padding(
+        padding: EdgeInsets.symmetric(horizontal: 4.0),
+        child: Icon(
+          Icons.circle,
+          color: Colors.amber, // White dot
+          size: 40,
+        ),
       ),
     );
   }
@@ -68,11 +115,19 @@ class ErrorDialog extends StatelessWidget {
 }
 
 Future<void> showErrorDialog(String message) {
-  return Get.dialog(ErrorDialog(message: message));
+  return Get.dialog(
+    ErrorDialog(message: message),
+    barrierDismissible: false,
+  );
 }
 
 Future<void> showLoadingDialog({required String message}) {
-  return Get.dialog(LoadingDialog(message: message), barrierDismissible: false);
+  return Get.dialog(
+    LoadingDialog(message: message),
+    barrierDismissible: false,
+    barrierColor:
+        Colors.black.withOpacity(0.5), // Dark background for the entire screen
+  );
 }
 
 void hideLoadingDialog() {

@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:lottie/lottie.dart';
 
 import '../../controller/auth_controller.dart';
 import '../../repo/auth_repo.dart';
@@ -46,7 +47,11 @@ class SignUpView extends StatelessWidget {
 
         return Row(
           children: [
-            if (!isMobile) const Expanded(child: ImageCarousel()),
+            if (!isMobile)
+              Expanded(
+                child:
+                    Lottie.asset('assets/lottie/signUp.json', reverse: false),
+              ),
             Expanded(child: _buildSignUpCard(screenSize, context)),
           ],
         );
@@ -105,7 +110,7 @@ class SignUpView extends StatelessWidget {
                         style:
                             TextStyle(color: Colors.grey[700], fontSize: 16)),
                     TextButton(
-                      onPressed: () => Navigator.pop(context),
+                      onPressed: () => Get.back(),
                       child: Text('Sign In',
                           style: AppTypography.kSemiBold16
                               .copyWith(color: AppColors.kBlack, fontSize: 17)),
@@ -129,10 +134,8 @@ class SignUpView extends StatelessWidget {
                     child: Text('Sign Up', style: AppTypography.kSemiBold16),
                   ),
                 ),
-                // const SizedBox(height: 16),
-                // _loginWithGoogleButton(
-                //   image: 'assets/google.png',
-                // ),
+                const SizedBox(height: 30),
+                _loginWithGoogleButton()
               ],
             ),
           ),
@@ -141,15 +144,12 @@ class SignUpView extends StatelessWidget {
     );
   }
 
-  Widget _loginWithGoogleButton(
-      {required String image, bool isActive = false}) {
+  Widget _loginWithGoogleButton({bool isActive = false}) {
     return SizedBox(
       height: 50,
       width: Get.width,
       child: ElevatedButton(
-        onPressed: () async {
-          //     Get.find<AuthController>().signInWithGoogle();
-        },
+        onPressed: () => AuthRepo().signInWithGoogle(isFromSignIn: false),
         style: ElevatedButton.styleFrom(
           foregroundColor: isActive ? Colors.black : Colors.black,
           backgroundColor: isActive ? Colors.white : Colors.white,
@@ -164,12 +164,12 @@ class SignUpView extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Image.asset(
-              image,
+              'assets/icons/google.png',
               width: 24,
               height: 24,
             ),
             const SizedBox(width: 8),
-            const Text('Sign Up with Google'),
+            const Text('Sign up with Google'),
           ],
         ),
       ),

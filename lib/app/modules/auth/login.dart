@@ -133,6 +133,8 @@ class SignInView extends StatelessWidget {
                     ),
                   ],
                 ),
+                const SizedBox(height: 20),
+                _loginWithGoogleButton(),
               ],
             ),
           ),
@@ -204,14 +206,12 @@ class SignInView extends StatelessWidget {
   }
 }
 
-Widget _loginWithGoogleButton({required String image, bool isActive = false}) {
+Widget _loginWithGoogleButton({bool isActive = false}) {
   return SizedBox(
     height: 50,
     width: Get.width,
     child: ElevatedButton(
-      onPressed: () {
-        //      Get.find<AuthController>().signInWithGoogle();
-      },
+      onPressed: () => AuthRepo().signInWithGoogle(),
       style: ElevatedButton.styleFrom(
         foregroundColor: isActive ? Colors.black : Colors.black,
         backgroundColor: isActive ? Colors.white : Colors.white,
@@ -226,7 +226,7 @@ Widget _loginWithGoogleButton({required String image, bool isActive = false}) {
         mainAxisSize: MainAxisSize.min,
         children: [
           Image.asset(
-            image,
+            'assets/icons/google.png',
             width: 24,
             height: 24,
           ),

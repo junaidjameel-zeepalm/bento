@@ -6,11 +6,14 @@ import 'dart:html' as html;
 import 'package:bento/app/model/gridItem_model.dart';
 import 'package:bento/app/utils/app_utils/app_utils.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
+import 'package:get/get.dart';
 
 class WidgetRepo {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   Future<List<GridItem>> fetchUserWidgets(String uid) async {
     QuerySnapshot widgetSnapshot = await _firestore
@@ -178,5 +181,15 @@ class WidgetRepo {
         .collection('widgets')
         .doc(itemId)
         .update({'shape': shapeName});
+  }
+
+  Future<void> changeUserName(String newName) async {
+    // Update the user's name in Firestore
+
+    await _firestore.collection('users').doc(_auth.currentUser!.uid).update({
+      'name': newName,
+    });
+
+    Get.back();
   }
 }

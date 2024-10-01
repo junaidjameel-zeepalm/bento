@@ -25,6 +25,7 @@ class WidgetCreationTileState extends State<WidgetCreationTile>
   late final AnimationController _animationController;
   late final Animation<Offset> _slideAnimation;
   String _selectedImagePath = '';
+  String videoPath = '';
 
   @override
   void initState() {
@@ -69,6 +70,23 @@ class WidgetCreationTileState extends State<WidgetCreationTile>
 
   Future<void> _onPhotoIconPressed() async {
     await _pickImage(ImageSource.gallery);
+  }
+
+  Future<void> _onVideoIconPressed() async {
+    await _pickVideo();
+  }
+
+  Future<void> _pickVideo() async {
+    final pickedVideo =
+        await ImagePicker().pickVideo(source: ImageSource.gallery);
+    if (pickedVideo != null) {
+      setState(() {
+        videoPath = pickedVideo.path;
+      });
+      hc.addItem(type: ItemType.video, content: videoPath);
+    } else {
+      log('Video not Selected');
+    }
   }
 
   @override
@@ -184,7 +202,11 @@ class WidgetCreationTileState extends State<WidgetCreationTile>
             hoverController.toggleLinkInputVisibility();
           } else if (index == 1) {
             _onPhotoIconPressed();
-          } else if (index == 2) {
+          }
+          // else if (index == 2) {
+          //   _onVideoIconPressed();
+          // }
+          else if (index == 2) {
             hc.addItem(type: ItemType.text, content: '');
           } else if (index == 3) {
             hc.addItem(type: ItemType.sectionTile, content: '');
@@ -195,7 +217,7 @@ class WidgetCreationTileState extends State<WidgetCreationTile>
   }
 
   Widget _buildDeviceIcons() {
-    var initialView = Get.find<HoverController>().initialView.value;
+    var initialView = Get.find<HoverController>().initialView;
     return Row(
       children: [
         Container(

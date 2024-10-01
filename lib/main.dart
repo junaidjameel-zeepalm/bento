@@ -3,6 +3,7 @@ import 'package:bento/app/services/auth_wrapper.dart';
 import 'package:bento/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
@@ -21,25 +22,35 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     Get.put(AuthController(), permanent: true);
 
-    return GetMaterialApp(
-        builder: (context, child) => ResponsiveBreakpoints.builder(
-              child: child!,
-              breakpoints: [
-                const Breakpoint(start: 0, end: 450, name: MOBILE),
-                const Breakpoint(start: 451, end: 800, name: TABLET),
-                const Breakpoint(start: 801, end: 1920, name: DESKTOP),
-                const Breakpoint(start: 1921, end: double.infinity, name: '4K'),
-              ],
-            ),
-        navigatorKey: navigatorKey,
-        scaffoldMessengerKey: scaffoldMessengerKey,
+    return ScreenUtilInit(
+        designSize: const Size(393, 852),
         useInheritedMediaQuery: true,
-        title: 'Bento',
-        debugShowCheckedModeBanner: false,
-        scrollBehavior: const ScrollBehavior().copyWith(scrollbars: false),
-        theme: AppTheme.lightTheme,
-        //theme: AppTheme.darkTheme,
-        home: AuthWrapper());
+        builder: (context, child) => GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () {
+              FocusManager.instance.primaryFocus?.unfocus();
+            },
+            child: GetMaterialApp(
+                builder: (context, child) => ResponsiveBreakpoints.builder(
+                      child: child!,
+                      breakpoints: [
+                        const Breakpoint(start: 0, end: 450, name: MOBILE),
+                        const Breakpoint(start: 451, end: 800, name: TABLET),
+                        const Breakpoint(start: 801, end: 1920, name: DESKTOP),
+                        const Breakpoint(
+                            start: 1921, end: double.infinity, name: '4K'),
+                      ],
+                    ),
+                navigatorKey: navigatorKey,
+                scaffoldMessengerKey: scaffoldMessengerKey,
+                useInheritedMediaQuery: true,
+                title: 'Bento',
+                debugShowCheckedModeBanner: false,
+                scrollBehavior:
+                    const ScrollBehavior().copyWith(scrollbars: false),
+                theme: AppTheme.lightTheme,
+                //theme: AppTheme.darkTheme,
+                home: AuthWrapper())));
   }
 }
 

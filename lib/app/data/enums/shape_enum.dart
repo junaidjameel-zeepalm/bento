@@ -42,7 +42,7 @@ ShapeType shapeTypeFromString(String value) {
   }
 }
 
-enum ItemType { link, image, text, sectionTile }
+enum ItemType { link, image, video, text, sectionTile }
 
 extension ItemTypeExtension on ItemType {
   String get name {
@@ -51,6 +51,8 @@ extension ItemTypeExtension on ItemType {
         return 'link';
       case ItemType.image:
         return 'image';
+      case ItemType.video:
+        return 'video';
       case ItemType.text:
         return 'text';
       case ItemType.sectionTile:
@@ -67,6 +69,8 @@ ItemType itemTypeFromString(String value) {
       return ItemType.link;
     case 'image':
       return ItemType.image;
+    case 'video':
+      return ItemType.video;
     case 'text':
       return ItemType.text;
     case 'sectionTile':

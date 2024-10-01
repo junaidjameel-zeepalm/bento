@@ -1,35 +1,49 @@
 import * as functions from 'firebase-functions';
 import axios from 'axios';
 import * as cheerio from 'cheerio';
+import { map } from 'cheerio/dist/commonjs/api/traversing';
 
-exports.getWebsiteInfo = functions.https.onCall(async (data, context) => {
-  if (!data.url) {
-    throw new functions.https.HttpsError('invalid-argument', 'The URL must be provided.');
+export const fetchWebsiteData = functions.https.onCall(async (req: any, res:any) => {
+    const url = req.query.url as string;
+
+  if (!url) {
+    return res.status(400).json({ error: 'URL parameter is required' });
   }
 
   try {
-    const url = data.url;
-    const response = await axios.get(url);
-    const html = response.data;
+    const { data } = await axios.get(url, {
+      headers: {
+        'User-Agent':
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3',
+      },
+    });
 
-    const $ = cheerio.load(html);
+    // Parse HTML with Cheerio
+    const $ = cheerio.load(data);
 
     // Extract title
-    const title = $('head title').text();
+    const title = $('title').text() || '';
 
     // Extract favicon
-    let faviconUrl = '';
-    const link = $('link[rel="icon"], link[rel="shortcut icon"]').attr('href');
-    if (link) {
-      faviconUrl = new URL(link, url).href; // Ensure it's a full URL
+    let faviconUrl = $('link[rel="icon"]').attr('href');
+    if (!faviconUrl) {
+      faviconUrl = $('link[rel="shortcut icon"]').attr('href') || '';
     }
 
-    return {
-      title,
-      faviconUrl
-    };
+    if (faviconUrl && !faviconUrl.startsWith('http')) {
+      const baseUrl = new URL(url);
+      faviconUrl = `${baseUrl.origin}${faviconUrl.startsWith('/') ? '' : '/'}${faviconUrl}`;
+    }
+
+return {
+  title,
+  faviconUrl,
+  
+
+} ;
+
   } catch (error) {
-    console.error('Error fetching website info:', error);
-    throw new functions.https.HttpsError('internal', 'Failed to fetch website info.');
+    console.error('Error fetching website data:', error);
+  return  {}
   }
 });

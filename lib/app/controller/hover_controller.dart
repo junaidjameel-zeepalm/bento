@@ -7,10 +7,11 @@ class HoverController extends GetxController {
     isHovered.value = hover;
   }
 
-  var initialView = DeviceView.desktop.obs;
-
+  final _initialView = DeviceView.desktop.obs;
+  DeviceView get initialView => _initialView.value;
   void setInitialView(DeviceView view) {
-    initialView.value = view;
+    _initialView.value = view;
+    update();
   }
 
   var showLinkInput = false.obs;

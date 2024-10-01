@@ -36,7 +36,7 @@ class AppUtils {
 
   static removeAllControllers() {
     Get.delete<HoverController>(force: true);
-
+    Get.delete<HomeController>(force: true);
     // Get.delete<ProjectController>(force: true);
     // Get.delete<MessageController>(force: true);
   }

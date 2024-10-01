@@ -63,6 +63,7 @@ class UserController extends GetxController {
   void onClose() {
     _currentUser.close();
     bioController.dispose();
+    AppUtils.removeAllControllers();
     super.onClose();
   }
 

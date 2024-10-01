@@ -6,6 +6,8 @@ class GridItem {
   final ItemType type;
   final String? link;
   final String? imagePath;
+
+  final String? videoUrl;
   final String? text;
   final String? sectionTile;
   final int position; // New field to store the order
@@ -16,6 +18,7 @@ class GridItem {
     required this.type,
     this.link,
     this.imagePath,
+    this.videoUrl,
     this.text,
     this.sectionTile,
     required this.position, // Initialize in constructor
@@ -29,6 +32,7 @@ class GridItem {
       'type': type.name,
       'link': link,
       'imagePath': imagePath,
+      'videoUrl': videoUrl,
       'text': text,
       'sectionTile': sectionTile,
       'position': position, // Add this
@@ -42,6 +46,7 @@ class GridItem {
       type: ItemType.values.byName(map['type']),
       link: map['link'],
       imagePath: map['imagePath'],
+      videoUrl: map['videoUrl'],
       text: map['text'],
       sectionTile: map['sectionTile'],
       position: map['position'], // Add this
@@ -55,6 +60,7 @@ class GridItem {
     ItemType? type,
     String? link,
     String? imagePath,
+    String? videoUrl,
     String? text,
     String? sectionTile,
     int? position, // Add position here
@@ -65,6 +71,7 @@ class GridItem {
       type: type ?? this.type,
       link: link ?? this.link,
       imagePath: imagePath ?? this.imagePath,
+      videoUrl: videoUrl ?? this.videoUrl,
       text: text ?? this.text,
       sectionTile: sectionTile ?? this.sectionTile,
       position: position ?? this.position, // Add position here

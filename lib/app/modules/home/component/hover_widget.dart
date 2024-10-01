@@ -3,10 +3,12 @@ import 'dart:developer';
 import 'package:bento/app/controller/home_controller.dart';
 import 'package:bento/app/data/constant/data.dart';
 import 'package:bento/app/data/constant/style.dart';
+import 'package:bento/app/modules/home/component/videoPlayer_widget.dart';
 import 'package:bento/app/modules/home/link.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
@@ -241,6 +243,9 @@ class _OnHoverButtonState extends State<OnHoverButton> {
         return _buildLinkWidget(item.link);
       case ItemType.image:
         return _buildImageWidget(item.imagePath, containerSize);
+      // case ItemType.video:
+      //   return _buildVideoWidget(item.videoUrl!, containerSize);
+
       case ItemType.text:
         return _buildTextWidget(isHovered, containerSize, isMobile);
       case ItemType.sectionTile:
@@ -286,21 +291,32 @@ class _OnHoverButtonState extends State<OnHoverButton> {
         : const SizedBox();
   }
 
+  // Widget _buildVideoWidget(String videoUrl, Size containerSize) {
+  //   return Center(
+  //     child: Container(
+  //       width: containerSize.width,
+  //       height: containerSize.height,
+  //       decoration: BoxDecoration(
+  //         borderRadius: BorderRadius.circular(16),
+  //       ),
+  //       child: const VideoplayerWidget(),
+  //     ),
+  //   );
+  // }
+
   Widget _buildSectionTileWidget(isHovered, Size containerSize, bool isMobile) {
     return Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 10,
-        ),
-        margin: const EdgeInsets.all(12),
-        height: containerSize.height,
+        margin: const EdgeInsets.all(17),
+        //   height: containerSize.height,
+        padding: const EdgeInsets.symmetric(horizontal: 10),
         decoration: BoxDecoration(
-          color: AppColors.kgrey,
-          borderRadius: BorderRadius.circular(14),
+          color: isHovered ? AppColors.kgrey : Colors.transparent,
+          borderRadius: BorderRadius.circular(12.r),
         ),
         child: TextField(
           style: AppTypography.kRegular14,
           controller: _hc.getSectionTextController(widget.itemId),
-          maxLines: 3,
+          maxLines: 1,
           onChanged: (newValue) {
             _hc.updateItemSectionText(widget.itemId, newValue);
           },

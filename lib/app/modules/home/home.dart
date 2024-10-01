@@ -6,11 +6,15 @@ import 'package:bento/app/modules/home/component/addUserImg.dart';
 import 'package:bento/app/modules/home/component/grid_section_widget.dart';
 import 'package:bento/app/modules/home/component/settings_widget.dart';
 import 'package:bento/app/modules/home/component/widget_creation_tile.dart';
+import 'package:bento/app/widget/hover_delete_btn.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 
 import '../../controller/hover_controller.dart';
+import '../explore/explore.dart';
 
 class BentoHomePage extends StatefulWidget {
   const BentoHomePage({super.key});
@@ -20,108 +24,131 @@ class BentoHomePage extends StatefulWidget {
 }
 
 class BentoHomePageState extends State<BentoHomePage> {
-  final HoverController hoverController = Get.put(HoverController());
+  final HoverController hoverController = Get.find<HoverController>();
   final ScrollController _scrollController =
       ScrollController(); // Add this line
-  HomeController get hc => Get.find<HomeController>();
+
   UserController get uc => Get.find<UserController>();
 
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        hc.selectedItemId.value = '';
-        Get.find<HoverController>().showLinkInput.value = false;
-      },
-      child: Scaffold(
-        backgroundColor:
-            kIsWeb ? AppColors.kgrey.withOpacity(.3) : Colors.white,
-        resizeToAvoidBottomInset: true,
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-        floatingActionButton: const WidgetCreationTile(),
-        body: Obx(() {
-          hoverController.initialView.value;
-          return Stack(
-            alignment: Alignment.bottomLeft,
-            children: [
-              LayoutBuilder(
-                builder: (context, constraints) {
-                  bool isMobile = constraints.maxWidth < 1300;
+    return GetBuilder<HomeController>(builder: (hc) {
+      return GestureDetector(
+          onTap: () {
+            hc.selectedItemId.value = '';
+            hoverController.showLinkInput.value = false;
+          },
+          child: Scaffold(
+            backgroundColor:
+                kIsWeb ? AppColors.kgrey.withOpacity(.3) : Colors.white,
+            resizeToAvoidBottomInset: true,
+            floatingActionButtonLocation:
+                FloatingActionButtonLocation.centerFloat,
+            floatingActionButton: const WidgetCreationTile(),
+            body: Obx(
+              () {
+                hoverController.initialView;
+                return Stack(
+                  alignment: Alignment.bottomLeft,
+                  children: [
+                    LayoutBuilder(
+                      builder: (context, constraints) {
+                        bool isMobile = constraints.maxWidth < 1300;
 
-                  return ScrollbarTheme(
-                    data: ScrollbarThemeData(
-                      thumbColor:
-                          WidgetStateProperty.all(Colors.grey.withOpacity(.8)),
-                    ),
-                    child: Scrollbar(
-                      controller: _scrollController, // Add the controller here
-                      thumbVisibility: true,
-                      child: SingleChildScrollView(
-                        controller:
-                            _scrollController, // Add the controller here
-                        child: ConstrainedBox(
-                          constraints: BoxConstraints(
-                            minHeight: constraints.maxHeight,
+                        return ScrollbarTheme(
+                          data: ScrollbarThemeData(
+                            thumbColor: WidgetStateProperty.all(
+                                Colors.grey.withOpacity(.8)),
                           ),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              if (hoverController.initialView.value ==
-                                  DeviceView.mobile)
-                                Center(
-                                  child: Container(
-                                    margin: const EdgeInsets.all(20),
-                                    alignment: Alignment.center,
-                                    width: 500,
-                                    decoration: BoxDecoration(
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.grey.withOpacity(0.2),
-                                          spreadRadius: 5,
-                                          blurRadius: 7,
-                                          offset: const Offset(0, 3),
+                          child: Scrollbar(
+                            controller:
+                                _scrollController, // Add the controller here
+                            thumbVisibility: true,
+                            child: SingleChildScrollView(
+                              controller:
+                                  _scrollController, // Add the controller here
+                              child: ConstrainedBox(
+                                constraints: BoxConstraints(
+                                  minHeight: constraints.maxHeight,
+                                ),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    if (hoverController.initialView ==
+                                        DeviceView.mobile)
+                                      Center(
+                                        child: Container(
+                                          margin: const EdgeInsets.all(20),
+                                          alignment: Alignment.center,
+                                          width: 500,
+                                          decoration: BoxDecoration(
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.grey
+                                                    .withOpacity(0.2),
+                                                spreadRadius: 5,
+                                                blurRadius: 7,
+                                                offset: const Offset(0, 3),
+                                              ),
+                                            ],
+                                            color: Colors.white,
+                                            borderRadius:
+                                                BorderRadius.circular(30),
+                                          ),
+                                          child: _buildMobileLayout(
+                                              Get.width > 600),
                                         ),
-                                      ],
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(30),
-                                    ),
-                                    child: _buildMobileLayout(Get.width > 600),
-                                  ),
-                                )
-                              else
-                                isMobile
-                                    ? _buildMobileLayout(isMobile)
-                                    : _buildDesktopLayout(isMobile),
-                            ],
+                                      )
+                                    else
+                                      isMobile
+                                          ? _buildMobileLayout(isMobile)
+                                          : _buildDesktopLayout(isMobile),
+                                  ],
+                                ),
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
+                        );
+                      },
                     ),
-                  );
-                },
-              ),
-              LayoutBuilder(
-                builder: (context, constraints) {
-                  bool isWeb = constraints.maxWidth > 1300;
+                    LayoutBuilder(
+                      builder: (context, constraints) {
+                        bool isWeb = constraints.maxWidth > 1300;
 
-                  return isWeb
-                      ? const Padding(
-                          padding: EdgeInsets.only(left: 20.0, bottom: 20),
-                          child: SettingsWidget(),
-                        )
-                      : const SizedBox();
-                },
-              ),
-            ],
-          );
-        }),
-      ),
-    );
+                        return isWeb
+                            ? Padding(
+                                padding: const EdgeInsets.only(
+                                    left: 20.0, bottom: 20),
+                                child: Row(
+                                  children: [
+                                    const SettingsWidget(),
+                                    IconButton(
+                                        onPressed: () =>
+                                            Get.to(() => const ExploreView()),
+                                        icon:
+                                            const Icon(Icons.explore_outlined)),
+                                    const SizedBox(
+                                        height: 30, child: VerticalDivider()),
+                                    Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 10, vertical: 10),
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                        ),
+                                        child: const Text('2 Views Yesterday')),
+                                  ],
+                                ),
+                              )
+                            : const SizedBox();
+                      },
+                    ),
+                  ],
+                );
+              },
+            ),
+          ));
+    });
   }
 
   Widget _buildDesktopLayout(bool isMobile) {
@@ -184,14 +211,15 @@ class BentoHomePageState extends State<BentoHomePage> {
           const SizedBox(height: 20),
           Padding(
             padding: EdgeInsets.only(left: isMobile ? 0 : 20.0),
-            child: Text(
-              uc.user!.name!.capitalize!,
-              style: AppTypography.kBold28.copyWith(fontSize: 25),
-            ),
+            child: Obx(() => Text(
+                  uc.user!.name!.capitalize!,
+                  style: AppTypography.kBold28.copyWith(fontSize: 25),
+                )),
           ),
           Padding(
             padding: EdgeInsets.only(left: isMobile ? 0 : 20.0),
             child: TextField(
+              maxLines: 4,
               textAlign: isMobile ? TextAlign.center : TextAlign.start,
               controller: uc.bioController,
               onChanged: (value) => uc.updateText,

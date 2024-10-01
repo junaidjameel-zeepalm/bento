@@ -12,7 +12,7 @@ class HomeController extends GetxController {
   final linkController = TextEditingController();
   final String currentUid = Get.find<AuthController>().user!.uid;
 
-  var items = <GridItem>[].obs;
+  final items = <GridItem>[].obs;
   var selectedItemId = ''.obs;
 
   Timer? _debounce;
